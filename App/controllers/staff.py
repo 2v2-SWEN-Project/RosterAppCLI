@@ -11,29 +11,26 @@ def get_combined_roster(staff_id):
 
 
 def clock_in(staff_id, shift_id):
-    staff = get_user(staff_id)
-    if not staff or staff.role != "staff":
-        raise PermissionError("Only staff can clock in")
-
     shift = db.session.get(Shift, shift_id)
-
-    if not shift or shift.staff_id != staff_id:
+    if not shift:
         raise ValueError("Invalid shift for staff")
-
+    if shift.staff_id != staff_id:
+        raise PermissionError("Only the assigned staff can clock in to this shift.")
+    if shift.clock_in:
+        raise ValueError(f"Shift {shift_id} has already been clocked in at {shift.clock_in}.")
     shift.clock_in = datetime.now()
     db.session.commit()
     return shift
 
 
 def clock_out(staff_id, shift_id):
-    staff = get_user(staff_id)
-    if not staff or staff.role != "staff":
-        raise PermissionError("Only staff can clock out")
-
     shift = db.session.get(Shift, shift_id)
-    if not shift or shift.staff_id != staff_id:
+    if not shift:
         raise ValueError("Invalid shift for staff")
-
+    if shift.staff_id != staff_id:
+        raise PermissionError("Only the assigned staff can clock out of this shift.")
+    if shift.clock_out:
+        raise ValueError(f"Shift {shift_id} has already been clocked out at {shift.clock_out}.")
     shift.clock_out = datetime.now()
     db.session.commit()
     return shift
