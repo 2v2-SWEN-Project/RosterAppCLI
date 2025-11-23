@@ -112,68 +112,69 @@ After flask type user create then add the username, the password and the role of
 
 ```bash
 flask user create admin1 adminpass admin
+flask user create alice alicepass staff
+flask user create bob bobpass user
 ```
 List users
 ```bash
 flask user list string
 flask user list json
 ```
+# Managing schedules
+
+Create Schedule (Admin only)
+
+After flask type schedule create, then add the user id of the creator (admin or staff) and the schedule name:
+
+```bash
+flask schedule create 1 "April Week 2"
+```
+
+List All Schedules
+
+```bash
+flask schedule list
+```
+
+View a Schedule
+
+```bash
+flask schedule view 1
+```
+
 # Managing shifts
 
 To Schedule shifts (Admin only)
 
-After flask type shift  schedule the staff id, the schedule idand the start and end of the shift in the ISO 8601 DateTime with time format( can copy the formant below and edit it)
+After flask type shift schedule, then add the staff id, the schedule id, and the start and end of the shift in ISO 8601 DateTime format:
 
 ```bash
 flask shift schedule 2 1 2025-10-01T09:00:00 2025-10-01T17:00:00
 ```
+
 View Roster (Staff only)
 
-After flask type shift roster to for the logged in staff
+After flask type shift roster and the staff id:
 
 ```bash
-flask shift roster 
+flask shift roster 2
 ```
-Clockin and Clockout(Staff only)
 
-After flask type shift clockin or clockoutand the shift id
+Clockin and Clockout (Staff only)
+
+After flask type shift clockin or clockout, the staff id, and the shift id:
 
 ```bash
-flask shift clockin 1
-flask shift clockout 1
+flask shift clockin 2 1
+flask shift clockout 2 1
 ```
 
 Shift Report (Admin only)
 
-After flask  type shift report 
+After flask type shift report and the admin id:
 
 ```bash
-flask shift report 
-```
-
-# Managing schedule
-
-Create Schedule(Admin only)
-
-After flask type schedule, create and the title 
-
-```bash
-flask schedule create "April Week 2" 
-```
-
-List All Schedules(Admin only)
-
-After flask  type schedule  list 
-
-```bash
-flask schedule list 
-```
-View a Schedule (Admin only)
-
-After flask type schedule view and the schedule id 
-
-```bash
-flask schedule view 1 
+flask shift report 1
 ```
 
 # Database Migrations
