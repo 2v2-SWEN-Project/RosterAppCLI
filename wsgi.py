@@ -75,8 +75,9 @@ def clockout_command(staff_id, shift_id):
     print(f"Staff {staff_id} clocked out: {shift.get_json()}")
 
 @shift_cli.command("report", help="View shift report")
-def report_command():
-    report = get_shift_report(None)  # No admin required
+@click.argument("admin_id", type=int)
+def report_command(admin_id):
+    report = get_shift_report(admin_id)
     print(f"Shift report:")
     print(report)
 
