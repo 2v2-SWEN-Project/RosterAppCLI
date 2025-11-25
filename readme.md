@@ -219,6 +219,24 @@ You can run all application tests with the following command
 $ pytest
 ```
 
+### Running Specific Tests
+
+You can run different test suites using the following commands:
+
+```bash
+# Run all tests
+python -m pytest App/tests/ -v
+
+# Run only unit & integration tests
+python -m pytest App/tests/test_app.py -v
+
+# Run only user acceptance tests
+python -m pytest App/tests/test_user_acceptance.py -v
+
+# Run specific test class (e.g., Login tests)
+python -m pytest App/tests/test_user_acceptance.py::TestLogin -v
+```
+
 ## Test Coverage
 
 You can generate a report on your test coverage via the following command
