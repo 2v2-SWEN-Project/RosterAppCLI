@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Weekly Staff Roster — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.admin_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1 class="card-title">Weekly Staff Roster</h1>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Shift ID</th>
+            <th>Date &amp; Time</th>
+            <th>Location</th>
+            <th>Staff ID</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>1</td>
+            <td>2025-10-24 09:00–17:00</td>
+            <td>Front Desk</td>
+            <td>2</td>
+            <td>Assigned</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+{% endblock %}
