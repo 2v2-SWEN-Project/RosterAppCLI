@@ -6,43 +6,54 @@
 {% endblock %}
 
 {% block content %}
-<div class="two-column-layout">
-    <section class="card">
-        <h2 class="card-title">Shift Details</h2>
-        <table class="detail-table">
-            <tbody>
-            <tr><th>Shift ID</th><td>1</td></tr>
-            <tr><th>Location</th><td>Front Desk</td></tr>
-            <tr><th>Date</th><td>2025-10-24</td></tr>
-            <tr><th>Start Time</th><td>09:00</td></tr>
-            <tr><th>End Time</th><td>17:00</td></tr>
-            <tr><th>Status</th><td>Assigned</td></tr>
-            </tbody>
-        </table>
-    </section>
+<section class="card" style="max-width: 600px;">
+    <h1 class="card-title">📅 Shift Details</h1>
+    <p style="margin: 0 0 1.5rem 0; font-size: 0.95rem; color: #4b5563; font-weight: 600;">View your assigned shift information</p>
 
-    <section class="card">
-        <h2 class="card-title">Swap Request</h2>
+    <table class="detail-table">
+        <tbody>
+        <tr><th>Shift ID</th><td>1</td></tr>
+        <tr><th>Location</th><td>Front Desk</td></tr>
+        <tr><th>Date</th><td>2025-10-24 (Friday)</td></tr>
+        <tr><th>Start Time</th><td>09:00 AM</td></tr>
+        <tr><th>End Time</th><td>05:00 PM</td></tr>
+        <tr><th>Duration</th><td>8 hours</td></tr>
+        <tr><th>Status</th><td><span style="color: #14b8a6; font-weight: 700;">✓ Assigned</span></td></tr>
+        </tbody>
+    </table>
 
-        <form method="post" action="{{ url_for('index_views.request_swap') }}">
-            <div class="form-group">
-                <label for="swap-type">Request Type</label>
-                <select id="swap-type" name="type">
-                    <option value="swap">Swap</option>
-                    <option value="drop">Drop</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="reason">Reason</label>
-                <textarea id="reason" name="reason" rows="3"></textarea>
-            </div>
-            <button type="submit" class="btn primary">Submit Request</button>
-        </form>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn primary" style="padding: 0.75rem 1rem; font-weight: 700;" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">
+            ⏱️ Clock In/Out
+        </button>
+        <button class="btn success" style="padding: 0.75rem 1rem; font-weight: 700;" onclick="location.href='{{ url_for('index_views.request_swap') }}'">
+            🔄 Request Swap
+        </button>
+    </div>
+</section>
 
-        <div class="request-actions">
-            <button class="btn success">Approve</button>
-            <button class="btn danger">Deny</button>
-        </div>
-    </section>
-</div>
+<style>
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.detail-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    width: 35%;
+    background: #f0f4f9;
+    border: 2px solid #bfdbfe;
+    color: #3b82f6;
+    font-weight: 700;
+}
+
+.detail-table td {
+    padding: 0.5rem 0.75rem;
+    border: 2px solid #bfdbfe;
+    color: #2d3748;
+}
+</style>
 {% endblock %}

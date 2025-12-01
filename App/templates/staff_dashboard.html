@@ -9,7 +9,7 @@
 {% block content %}
 <div class="dashboard-layout">
     <section class="card card-menu">
-        <h2 class="card-title">Actions</h2>
+        <h2 class="card-title">My Actions</h2>
         <button class="btn full-width" onclick="location.href='{{ url_for('index_views.staff_schedule') }}'">
             View Schedule
         </button>
@@ -17,16 +17,58 @@
             View Shifts
         </button>
         <button class="btn full-width" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">
-            Clock In / Clock Out
+            Clock In/Out
         </button>
         <button class="btn full-width" onclick="location.href='{{ url_for('index_views.request_swap') }}'">
-            Request Swap
+            Request Shift Swap
         </button>
     </section>
 
-    <section class="card">
-        <h2 class="card-title">Today’s Shift</h2>
-        <p>No shift assigned for today.</p>
+    <section>
+        <section class="card">
+            <h2 class="card-title">Today's Shift Assignment</h2>
+            {% if today_shift %}
+            <div style="padding: 1rem; background: #1e293b; border: 2px solid #14b8a6; border-radius: 6px;">
+                <table class="detail-table">
+                    <tr><th>Shift Date</th><td>{{ today_shift.start_time.strftime('%Y-%m-%d (%A)') }}</td></tr>
+                    <tr><th>Time</th><td>{{ today_shift.start_time.strftime('%H:%M') }} - {{ today_shift.end_time.strftime('%H:%M') }}</td></tr>
+                    <tr><th>Status</th><td>
+                        {% if today_shift.clock_out %}
+                            <span style="color: #14b8a6; font-weight: 700;">Completed</span>
+                        {% elif today_shift.clock_in %}
+                            <span style="color: #3b82f6; font-weight: 700;">In Progress</span>
+                        {% else %}
+                            <span style="color: #f59e0b; font-weight: 700;">Not Started</span>
+                        {% endif %}
+                    </td></tr>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 1rem; background: #1e293b; border-radius: 6px; text-align: center;">
+                <p style="margin: 0; font-size: 1rem; color: #cbd5e1;">No shift assigned for today.</p>
+                <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">Check back later or view your weekly schedule.</p>
+            </div>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">This Week's Summary</h2>
+            <table class="detail-table">
+                <tr><th>Shifts Assigned</th><td>{{ shifts_count }}</td></tr>
+                <tr><th>Total Hours</th><td>{{ total_hours }}</td></tr>
+                <tr><th>Status</th><td><span style="color: #14b8a6; font-weight: 700;">Active</span></td></tr>
+                <tr><th>Pending Requests</th><td>0</td></tr>
+            </table>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Important Notes</h2>
+            <ul class="notification-list">
+                <li>All your shifts are confirmed.</li>
+                <li>Please clock in/out on time each day.</li>
+                <li>Need to swap a shift? Use the "Request Shift Swap" button.</li>
+            </ul>
+        </section>
     </section>
 </div>
 {% endblock %}

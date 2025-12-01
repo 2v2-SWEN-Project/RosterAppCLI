@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block title %}Completed Shifts — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1 class="card-title">Your Completed Shifts</h1>
+    <p style="margin: 0 0 1.5rem 0; font-size: 0.95rem; color: #cbd5e1; font-weight: 600;">View all your completed shifts and hours worked</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for category, message in messages %}
+            <li class="flash {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% if shifts %}
+    <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+        <span style="font-weight: 700; color: #cbd5e1;">Showing {{ shifts|length }} completed shift(s)</span>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Shift Date</th>
+            <th>Clock In</th>
+            <th>Clock Out</th>
+            <th>Hours Worked</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for shift in shifts %}
+        <tr>
+            <td>{{ shift.start_time.strftime('%Y-%m-%d (%a)') }}</td>
+            <td>{{ shift.clock_in.strftime('%H:%M') }}</td>
+            <td>{{ shift.clock_out.strftime('%H:%M') }}</td>
+            <td>{% if shift.clock_in and shift.clock_out %}{{ "%.2f"|format((shift.clock_out - shift.clock_in).total_seconds() / 3600) }}{% else %}0.00{% endif %}</td>
+            <td><span style="color: #14b8a6; font-weight: 700;">Completed</span></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="background: #1e293b; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 1.25rem; margin-top: 1.5rem;">
+        <h3 style="margin: 0 0 0.75rem 0; color: #3b82f6; font-weight: 700;">Summary Statistics</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-weight: 600;">
+            <div>
+                <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Total Shifts</p>
+                <p style="margin: 0; color: #3b82f6; font-size: 1.5rem;">{{ shifts|length }}</p>
+            </div>
+            <div>
+                <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Total Hours</p>
+                <p style="margin: 0; color: #3b82f6; font-size: 1.5rem;">{{ total_hours }}</p>
+            </div>
+            <div>
+                <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Completion Rate</p>
+                <p style="margin: 0; color: #14b8a6; font-size: 1.5rem;">{{ completion_rate }}%</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <section style="background: #7c2d12; border-left: 4px solid #8b5cf6; border-radius: 4px; padding: 1.5rem; text-align: center;">
+        <p style="margin: 0; font-size: 1rem; color: #fed7aa; font-weight: 700;">No completed shifts yet.</p>
+        <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #fed7aa;">Once you complete a shift by clocking in and out, it will appear here.</p>
+    </section>
+    {% endif %}
+</section>
+{% endblock %}
