@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block title %}Staff Sign Up — Rostering App{% endblock %}
+
+{% block content %}
+<div class="page-center">
+    <section class="card card-form">
+        <h1 class="card-title">Staff Sign Up</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+              {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('index_views.staff_signup') }}">
+            <div class="form-group">
+                <label for="signup-username">Username</label>
+                <input
+                    id="signup-username"
+                    name="username"
+                    type="text"
+                    placeholder="Choose a username"
+                    value="{{ username or '' }}"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input
+                    id="signup-password"
+                    name="password"
+                    type="password"
+                    placeholder="Choose a password"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="signup-confirm">Confirm Password</label>
+                <input
+                    id="signup-confirm"
+                    name="confirm_password"
+                    type="password"
+                    placeholder="Repeat your password"
+                    required
+                >
+            </div>
+            <button type="submit" class="btn primary">Create Account</button>
+        </form>
+
+        <p class="auth-secondary">
+            Already have an account?
+            <a href="{{ url_for('index_views.staff_login') }}">Back to login</a>
+        </p>
+    </section>
+</div>
+{% endblock %}

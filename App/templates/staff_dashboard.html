@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Staff Dashboard — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<span class="nav-identity">Logged in as Staff</span>
+<a href="{{ url_for('index_views.logout') }}" class="link">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <section class="card card-menu">
+        <h2 class="card-title">Actions</h2>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.staff_schedule') }}'">
+            View Schedule
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.staff_shifts') }}'">
+            View Shifts
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">
+            Clock In / Clock Out
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.request_swap') }}'">
+            Request Swap
+        </button>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Today’s Shift</h2>
+        <p>No shift assigned for today.</p>
+    </section>
+</div>
+{% endblock %}

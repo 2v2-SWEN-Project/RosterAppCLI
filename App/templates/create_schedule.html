@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+{% block title %}Manually Create Schedule — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.admin_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1 class="card-title">Manually Create Schedule</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for category, message in messages %}
+            <li class="flash {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <p class="auth-secondary">
+        This is a placeholder page for manually creating a schedule.
+        Later you can hook this up to your real controllers.
+    </p>
+
+    <form method="post" action="{{ url_for('index_views.create_schedule') }}">
+        <div class="form-group">
+            <label for="week-start">Week Start Date</label>
+            <input id="week-start" name="week_start" type="date" required>
+        </div>
+
+        <div class="form-group">
+            <label for="staff-id">Staff ID</label>
+            <input id="staff-id" name="staff_id" type="number" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <label for="shift-date">Shift Date</label>
+            <input id="shift-date" name="shift_date" type="date" required>
+        </div>
+
+        <div class="form-group">
+            <label for="shift-start">Start Time</label>
+            <input id="shift-start" name="shift_start" type="time" required>
+        </div>
+
+        <div class="form-group">
+            <label for="shift-end">End Time</label>
+            <input id="shift-end" name="shift_end" type="time" required>
+        </div>
+
+        <button type="submit" class="btn primary">Add Shift</button>
+    </form>
+</section>
+{% endblock %}

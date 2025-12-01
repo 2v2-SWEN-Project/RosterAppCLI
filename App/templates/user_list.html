@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block title %}User List — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('admin_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<div class="two-column-layout">
+    <section class="card">
+        <h2 class="card-title">User List</h2>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Staff ID</th>
+                <th>Full Name</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr><td>2</td><td>Staff #2</td><td>Front Desk</td></tr>
+            <tr><td>3</td><td>Staff #3</td><td>Front Desk</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Weekly Staff Roster</h2>
+        <table class="table compact">
+            <thead>
+            <tr>
+                <th>Shift ID</th>
+                <th>Date &amp; Time</th>
+                <th>Staff ID</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>1</td><td>2025-10-24 09:00–17:00</td><td>2</td><td>Assigned</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <button class="btn primary full-width"
+                onclick="location.href='{{ url_for('index_views.shift_report') }}'">
+            Generate Report
+        </button>
+    </section>
+</div>
+{% endblock %}

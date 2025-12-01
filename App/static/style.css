@@ -1,3 +1,289 @@
-html {
+/* ==== Global ==== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f5f7;
+    color: #222;
+}
+
+.page-container {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+}
+
+.page-center {
+    min-height: calc(100vh - 120px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==== Top nav ==== */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.app-title {
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.nav-identity {
+    margin-right: 1rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* ==== Cards ==== */
+.card {
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-bottom: 1.5rem;
+}
+
+.card-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* ==== Layout helpers ==== */
+.dashboard-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: 1.5rem;
+}
+
+.two-column-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .dashboard-layout,
+    .two-column-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==== Forms ==== */
+.card-form {
+    width: 100%;
+    max-width: 360px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.45rem 0.55rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 0.95rem;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* ==== Buttons & links ==== */
+.btn {
+    display: inline-block;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    background: #e0e0e0;
+    color: #222;
+    transition: background 0.15s ease, transform 0.05s ease;
+}
+
+.btn.primary {
+    background: #1f7ae0;
+    color: #fff;
+}
+
+.btn.success {
+    background: #1c9c5f;
+    color: #fff;
+}
+
+.btn.danger {
+    background: #d64545;
+    color: #fff;
+}
+
+.btn.full-width {
+    width: 100%;
+    text-align: center;
+}
+
+.btn:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+.link {
+    color: #1f7ae0;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* ==== Tables ==== */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+    border: 1px solid #ddd;
+    padding: 0.4rem 0.6rem;
+    text-align: left;
+}
+
+.table thead {
+    background: #f2f2f2;
+}
+
+.table.compact th,
+.table.compact td {
+    padding: 0.3rem 0.5rem;
+}
+
+/* Detail table (two-column) */
+.detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.detail-table th {
+    text-align: left;
+    padding: 0.35rem 0.6rem;
+    width: 35%;
+    background: #f7f7f7;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.detail-table td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+/* ==== Notifications & report summary ==== */
+.notification-list {
+    list-style: none;
+    padding-left: 1rem;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.request-actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.summary-item {
+    padding: 0.35rem 0.55rem;
+    background: #f7f9fb;
+    border-radius: 4px;
+}
+
+.summary-label {
+    font-weight: 600;
+    margin-right: 0.3rem;
+}
+
+/* ==== Menu card ==== */
+.card-menu .btn {
+    margin-bottom: 0.5rem;
+}
+
+/* ==== Footer ==== */
+.app-footer {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #666;
+    padding: 0.75rem 0;
+}
+
+
+.flash-messages {
+    list-style: none;
+    margin: 0 0 0.75rem 0;
     padding: 0;
+    font-size: 0.85rem;
+}
+
+.flash {
+    padding: 0.4rem 0.55rem;
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+}
+
+.flash.error {
+    background: #fde2e2;
+    color: #a02929;
+}
+
+.flash.success {
+    background: #e0f4e8;
+    color: #226b3a;
+}
+
+.auth-secondary {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    text-align: center;
 }

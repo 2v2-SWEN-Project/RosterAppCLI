@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% block title %}Admin Dashboard — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<span class="nav-identity">Logged in as Admin</span>
+<a href="{{ url_for('index_views.logout') }}" class="link">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <section class="card card-menu">
+        <h2 class="card-title">Admin Actions</h2>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.admin_user_list') }}'">
+            User List
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.weekly_roster') }}'">
+            Weekly Staff Roster
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.create_schedule') }}'">
+            Manually Create Schedule
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.select_strategy') }}'">
+            Select Schedule Strategy
+        </button>
+        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.shift_report') }}'">
+            View Shift Reports
+        </button>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Notifications</h2>
+        <ul class="notification-list">
+            <li>No pending swap requests.</li>
+        </ul>
+    </section>
+</div>
+{% endblock %}

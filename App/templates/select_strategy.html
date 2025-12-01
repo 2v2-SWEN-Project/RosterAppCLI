@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block title %}Select Schedule Strategy — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.admin_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+    <h1 class="card-title">Select Schedule Strategy</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flash-messages">
+          {% for category, message in messages %}
+            <li class="flash {{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('index_views.select_strategy') }}">
+        <div class="form-group">
+            <label for="strategy">Scheduling Strategy</label>
+            <select id="strategy" name="strategy" required>
+                <option value="even">Distribute Shifts Evenly</option>
+                <option value="minDays">Minimise Number of Days Worked</option>
+                <option value="balanced">Balance Day/Night Shifts</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn primary">Save Strategy</button>
+    </form>
+
+    <p class="auth-secondary">
+        These strategies map to your Sprint 1 design note for the auto-scheduling feature.
+    </p>
+</section>
+{% endblock %}
