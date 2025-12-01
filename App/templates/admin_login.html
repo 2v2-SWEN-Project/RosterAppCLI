@@ -4,22 +4,46 @@
 {% block content %}
 <div class="page-center">
     <section class="card card-form">
-        <h1 class="card-title">Admin Login</h1>
+        <h1 class="card-title">Administrator Login</h1>
+        <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Access the admin dashboard</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+              {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
         <form method="post" action="{{ url_for('index_views.admin_login') }}">
             <div class="form-group">
-                <label for="admin-username">Username</label>
-                <input id="admin-username" name="username" type="text" required>
+                <label for="admin-username">Administrator Username</label>
+                <input 
+                    id="admin-username" 
+                    name="username" 
+                    type="text" 
+                    placeholder="Enter admin username"
+                    required
+                >
             </div>
             <div class="form-group">
                 <label for="admin-password">Password</label>
-                <input id="admin-password" name="password" type="password" required>
+                <input 
+                    id="admin-password" 
+                    name="password" 
+                    type="password" 
+                    placeholder="Enter password"
+                    required
+                >
             </div>
             <div class="form-group form-inline">
                 <label>
                     <input type="checkbox" name="remember_me"> Remember me
                 </label>
             </div>
-            <button type="submit" class="btn primary">Login</button>
+            <button type="submit" class="btn primary full-width">Login to Dashboard</button>
         </form>
     </section>
 </div>

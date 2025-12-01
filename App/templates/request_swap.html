@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block title %}Request Shift Swap — Rostering App{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<div class="two-column-layout">
+    <section class="card">
+        <h2 class="card-title">Available Shifts to Swap</h2>
+        <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #cbd5e1; font-weight: 600;">Select a shift you'd like to request a swap for</p>
+
+        <table class="table compact">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>2025-10-24 (Fri)</td>
+                <td>09:00 - 17:00</td>
+                <td>Front Desk</td>
+                <td><button class="btn primary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem; font-weight: 700;">Select</button></td>
+            </tr>
+            <tr>
+                <td>2025-10-25 (Sat)</td>
+                <td>14:00 - 22:00</td>
+                <td>Front Desk</td>
+                <td><button class="btn primary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem; font-weight: 700;">Select</button></td>
+            </tr>
+            <tr>
+                <td>2025-10-26 (Sun)</td>
+                <td>10:00 - 18:00</td>
+                <td>Front Desk</td>
+                <td><button class="btn primary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem; font-weight: 700;">Select</button></td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="card">
+        <h2 class="card-title">Request Swap Form</h2>
+        <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #cbd5e1; font-weight: 600;">Fill out the details to request a shift swap</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flash-messages">
+              {% for category, message in messages %}
+                <li class="flash {{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <form method="post" action="{{ url_for('index_views.request_swap') }}">
+            <div class="form-group">
+                <label for="target-shift">Select Shift to Swap</label>
+                <select id="target-shift" name="shift_id" required>
+                    <option value="">Choose a shift...</option>
+                    <option value="1">Shift #1 - 2025-10-24 09:00-17:00</option>
+                    <option value="2">Shift #2 - 2025-10-25 14:00-22:00</option>
+                    <option value="3">Shift #3 - 2025-10-26 10:00-18:00</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="target-staff">Propose Staff Member</label>
+                <select id="target-staff" name="target_staff" required>
+                    <option value="">Choose staff member...</option>
+                    <option value="3">Staff #3 - John Doe</option>
+                    <option value="4">Staff #4 - Jane Smith</option>
+                    <option value="5">Staff #5 - Alex Johnson</option>
+                    <option value="6">Staff #6 - Maria Garcia</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="reason">Reason for Swap Request</label>
+                <textarea id="reason" name="reason" rows="4" placeholder="Explain why you need this shift swap..." required style="font-weight: 600;"></textarea>
+            </div>
+            <button type="submit" class="btn primary full-width" style="padding: 0.75rem 1rem; font-size: 1rem; font-weight: 700;">
+                Submit Swap Request
+            </button>
+        </form>
+
+        <div style="background: #1e293b; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 1rem; margin-top: 1rem;">
+            <p style="margin: 0; font-size: 0.85rem; color: #fbbf24; font-weight: 700;">The staff member you select will be notified of your swap request and can accept or decline.</p>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -17,21 +17,134 @@
             Weekly Staff Roster
         </button>
         <button class="btn full-width" onclick="location.href='{{ url_for('index_views.create_schedule') }}'">
-            Manually Create Schedule
+            Create Schedule
         </button>
         <button class="btn full-width" onclick="location.href='{{ url_for('index_views.select_strategy') }}'">
-            Select Schedule Strategy
+            Schedule Strategy
         </button>
-        <button class="btn full-width" onclick="location.href='{{ url_for('index_views.shift_report') }}'">
-            View Shift Reports
-        </button>
+        <button class="btn full-width"
+        onclick="location.href='{{ url_for('index_views.shift_report') }}'">
+    View Reports
+</button>
+
     </section>
 
-    <section class="card">
-        <h2 class="card-title">Notifications</h2>
-        <ul class="notification-list">
-            <li>No pending swap requests.</li>
-        </ul>
+    <section>
+        <section class="card">
+            <h2 class="card-title">Dashboard Overview</h2>
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">Total Staff</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">Shifts This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">98%</div>
+                    <div class="stat-label">Attendance Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Pending Requests</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Staff Attendance</h2>
+            <table class="table compact">
+                <thead>
+                <tr>
+                    <th>Staff Member</th>
+                    <th>Clock In</th>
+                    <th>Clock Out</th>
+                    <th>Hours</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Staff #2 - John Doe</td>
+                    <td>09:00 AM</td>
+                    <td>05:00 PM</td>
+                    <td>8.0</td>
+                    <td><span style="color: #14b8a6; font-weight: 700;">Present</span></td>
+                </tr>
+                <tr>
+                    <td>Staff #3 - Jane Smith</td>
+                    <td>08:45 AM</td>
+                    <td>04:45 PM</td>
+                    <td>8.0</td>
+                    <td><span style="color: #14b8a6; font-weight: 700;">Present</span></td>
+                </tr>
+                <tr>
+                    <td>Staff #5 - Alex Johnson</td>
+                    <td>—</td>
+                    <td>—</td>
+                    <td>0.0</td>
+                    <td><span style="color: #8b5cf6; font-weight: 700;">Absent</span></td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Pending Shift Swap Requests</h2>
+            <table class="table compact">
+                <thead>
+                <tr>
+                    <th>Staff Member</th>
+                    <th>Shift Date</th>
+                    <th>Requesting Swap With</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Staff #2 - John Doe</td>
+                    <td>2025-10-24</td>
+                    <td>Staff #4 - Alex Johnson</td>
+                    <td>Family emergency</td>
+                    <td>
+                        <button class="btn success" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Approve</button>
+                        <button class="btn danger" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Deny</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Staff #6 - Maria Garcia</td>
+                    <td>2025-10-25</td>
+                    <td>Staff #3 - Jane Smith</td>
+                    <td>Medical appointment</td>
+                    <td>
+                        <button class="btn success" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Approve</button>
+                        <button class="btn danger" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Deny</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Staff #8 - Robert Chen</td>
+                    <td>2025-10-26</td>
+                    <td>Staff #7 - Emma Davis</td>
+                    <td>Personal reason</td>
+                    <td>
+                        <button class="btn success" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Approve</button>
+                        <button class="btn danger" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Deny</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card">
+            <h2 class="card-title">Notifications</h2>
+            <ul class="notification-list">
+                <li>All shifts for this week are assigned.</li>
+                <li>3 pending shift swap requests awaiting approval.</li>
+                <li>Next week's schedule is ready for review.</li>
+            </ul>
+        </section>
     </section>
 </div>
 {% endblock %}

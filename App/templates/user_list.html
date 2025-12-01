@@ -2,26 +2,35 @@
 {% block title %}User List — Rostering App{% endblock %}
 
 {% block nav_actions %}
-<a href="{{ url_for('admin_dashboard') }}" class="link">Back to Dashboard</a>
+<a href="{{ url_for('index_views.admin_dashboard') }}" class="link">Back to Dashboard</a>
 {% endblock %}
 
 {% block content %}
 <div class="two-column-layout">
     <section class="card">
         <h2 class="card-title">User List</h2>
+        {% if users %}
         <table class="table">
             <thead>
             <tr>
-                <th>Staff ID</th>
-                <th>Full Name</th>
+                <th>User ID</th>
+                <th>Username</th>
                 <th>Role</th>
             </tr>
             </thead>
             <tbody>
-            <tr><td>2</td><td>Staff #2</td><td>Front Desk</td></tr>
-            <tr><td>3</td><td>Staff #3</td><td>Front Desk</td></tr>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.role }}</td>
+            </tr>
+            {% endfor %}
             </tbody>
         </table>
+        {% else %}
+        <p style="color: #8b9dc3; font-weight: 600;">No users found.</p>
+        {% endif %}
     </section>
 
     <section class="card">
@@ -42,10 +51,11 @@
             </tbody>
         </table>
 
-        <button class="btn primary full-width"
-                onclick="location.href='{{ url_for('index_views.shift_report') }}'">
-            Generate Report
-        </button>
+        <button class="btn primary full-width" title="View shift reports including start/end times and clock-in/clock-out data"
+        onclick="location.href='{{ url_for('index_views.shift_report') }}'">
+    Generate Shift Report
+</button>
+
     </section>
 </div>
 {% endblock %}
