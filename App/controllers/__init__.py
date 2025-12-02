@@ -3,3 +3,4 @@ from .auth import *
 from .initialize import *
 from .admin import *
 from .staff import *
+from .schedule_controller import ScheduleController

@@ -12,6 +12,11 @@ class Shift(db.Model):
 
     staff = db.relationship("Staff", backref="shifts", foreign_keys=[staff_id])
 
+    def calculate_shift_duration_hours(self):
+        """Calculate the duration of this shift in hours."""
+        delta = self.end_time - self.start_time
+        return delta.total_seconds() / 3600.0
+
     def get_json(self):
         return {
             "id": self.id,
