@@ -1,56 +1,323 @@
-{% extends "layout.html" %}
-{% block title %}Manually Create Schedule — Rostering App{% endblock %}
+{% extends 'layout.html' %}
 
 {% block nav_actions %}
 <a href="{{ url_for('index_views.admin_dashboard') }}" class="link">Back to Dashboard</a>
 {% endblock %}
 
+
 {% block content %}
-<section class="card">
-    <h1 class="card-title">Manually Create Schedule</h1>
+<div class="create-schedule-container">
+  <div class="form-section">
+    <h1>Create Schedule</h1>
+    <p class="subtitle">Create a weekly schedule and assign shifts</p>
+    
+    <form method="POST" class="schedule-form">
+      <div class="form-group">
+        <label for="schedule_name">Schedule Name</label>
+        <input type="text" id="schedule_name" name="schedule_name" placeholder="e.g., Week of Dec 1" required>
+      </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flash-messages">
-          {% for category, message in messages %}
-            <li class="flash {{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-
-    <p class="auth-secondary">
-        This is a placeholder page for manually creating a schedule.
-        Later you can hook this up to your real controllers.
-    </p>
-
-    <form method="post" action="{{ url_for('index_views.create_schedule') }}">
+      <div class="form-row">
         <div class="form-group">
-            <label for="week-start">Week Start Date</label>
-            <input id="week-start" name="week_start" type="date" required>
+          <label for="week_start">Week Start Date</label>
+          <input type="date" id="week_start" name="week_start" required>
         </div>
 
         <div class="form-group">
-            <label for="staff-id">Staff ID</label>
-            <input id="staff-id" name="staff_id" type="number" min="1" required>
+          <label for="week_end">Week End Date</label>
+          <input type="date" id="week_end" name="week_end" required>
         </div>
+      </div>
 
-        <div class="form-group">
-            <label for="shift-date">Shift Date</label>
-            <input id="shift-date" name="shift_date" type="date" required>
+      <div class="form-group">
+        <label for="shifts">Select Shifts to Include</label>
+        <div class="shifts-selector">
+          {% if available_shifts %}
+            <div class="shifts-list">
+              {% for shift in available_shifts %}
+              <div class="shift-checkbox">
+                <input type="checkbox" id="shift_{{ shift.id }}" name="shifts" value="{{ shift.id }}">
+                <label for="shift_{{ shift.id }}">
+                  <span class="staff-name">{{ shift.staff.username if shift.staff else 'Unknown Staff' }}</span>
+                  <span class="shift-time">{{ shift.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ shift.end_time.strftime('%H:%M') }}</span>
+                </label>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="no-shifts-message">
+              <p>No unassigned shifts available. <a href="{{ url_for('index_views.create_shift') }}">Create shifts first</a></p>
+            </div>
+          {% endif %}
         </div>
+      </div>
 
-        <div class="form-group">
-            <label for="shift-start">Start Time</label>
-            <input id="shift-start" name="shift_start" type="time" required>
-        </div>
-
-        <div class="form-group">
-            <label for="shift-end">End Time</label>
-            <input id="shift-end" name="shift_end" type="time" required>
-        </div>
-
-        <button type="submit" class="btn primary">Add Shift</button>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" {% if not available_shifts %}disabled{% endif %}>Create Schedule</button>
+        <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
+      </div>
     </form>
-</section>
+  </div>
+
+  <div class="info-section">
+    <h3>How to Create a Schedule</h3>
+    <ol>
+      <li>Enter a name for your schedule (e.g., "Week of Dec 1")</li>
+      <li>Select the start and end dates for the schedule period</li>
+      <li>Check the boxes for shifts you want to include</li>
+      <li>Click "Create Schedule" to save</li>
+    </ol>
+    
+    <h3>Requirements</h3>
+    <ul>
+      <li>At least one shift must be created before creating a schedule</li>
+      <li>Shifts can only be added to one schedule at a time</li>
+      <li>Only unassigned shifts are shown in the list</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+.create-schedule-container {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  background-color: #1a2332;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+.form-section {
+  flex: 1;
+  background-color: #243447;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #3d5568;
+}
+
+.form-section h1 {
+  color: #4da6ff;
+  margin-bottom: 10px;
+  font-size: 28px;
+}
+
+.subtitle {
+  color: #9db3c4;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+.schedule-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  color: #4da6ff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px;
+  background-color: #1a2332;
+  border: 1px solid #3d5568;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #4da6ff;
+  box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.1);
+}
+
+.form-group input::placeholder {
+  color: #7a8fa3;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.shifts-selector {
+  background-color: #1a2332;
+  border: 1px solid #3d5568;
+  border-radius: 4px;
+  padding: 15px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.shifts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shift-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.shift-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #4da6ff;
+}
+
+.shift-checkbox label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.staff-name {
+  color: #e0e0e0;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.shift-time {
+  color: #9db3c4;
+  font-size: 12px;
+}
+
+.no-shifts-message {
+  padding: 20px;
+  background-color: #2d3f52;
+  border-radius: 4px;
+  text-align: center;
+  color: #9db3c4;
+}
+
+.no-shifts-message a {
+  color: #4da6ff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.no-shifts-message a:hover {
+  text-decoration: underline;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s;
+  display: inline-block;
+}
+
+.btn-primary {
+  background-color: #4da6ff;
+  color: #1a2332;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #3d8fd9;
+}
+
+.btn-primary:disabled {
+  background-color: #3d5568;
+  color: #7a8fa3;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: #3d5568;
+  color: #e0e0e0;
+}
+
+.btn-secondary:hover {
+  background-color: #4a6a82;
+}
+
+.info-section {
+  flex: 0 0 300px;
+  background-color: #243447;
+  padding: 30px;
+  border-radius: 8px;
+  border: 1px solid #3d5568;
+  height: fit-content;
+}
+
+.info-section h3 {
+  color: #4da6ff;
+  margin-bottom: 15px;
+  font-size: 16px;
+  margin-top: 0;
+}
+
+.info-section h3:not(:first-child) {
+  margin-top: 25px;
+}
+
+.info-section ol,
+.info-section ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #c5d3dd;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.info-section li {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+  .create-schedule-container {
+    flex-direction: column;
+  }
+
+  .info-section {
+    flex: 1;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .shifts-selector {
+    max-height: 300px;
+  }
+}
+</style>
 {% endblock %}

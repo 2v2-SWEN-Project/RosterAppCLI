@@ -6,27 +6,435 @@
 {% endblock %}
 
 {% block content %}
-<section class="card">
-    <h1 class="card-title">Weekly Staff Roster</h1>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Shift ID</th>
-            <th>Date &amp; Time</th>
-            <th>Location</th>
-            <th>Staff ID</th>
-            <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>1</td>
-            <td>2025-10-24 09:00–17:00</td>
-            <td>Front Desk</td>
-            <td>2</td>
-            <td>Assigned</td>
-        </tr>
-        </tbody>
-    </table>
-</section>
+<div class="roster-container">
+  <div class="roster-header">
+    <h1>Weekly Staff Roster</h1>
+    <p class="subtitle">Schedule for {{ week_start_display }} to {{ week_end_display }}</p>
+  </div>
+
+  <div class="schedule-selector">
+    <div class="selector-group">
+      <label for="schedule_type">Schedule Type:</label>
+      <select id="schedule_type" class="schedule-dropdown">
+        {% if auto_schedules %}
+          <option value="auto" {% if current_schedule_type == 'auto' %}selected{% endif %}>Auto-Generated Schedules</option>
+        {% endif %}
+        {% if manual_schedules %}
+          <option value="manual" {% if current_schedule_type == 'manual' %}selected{% endif %}>Manual Schedules</option>
+        {% endif %}
+      </select>
+    </div>
+
+    <div class="selector-group">
+      <label for="schedule_id">Select Schedule:</label>
+      <select id="schedule_id" class="schedule-dropdown">
+        {% if current_schedule_type == 'auto' %}
+          {% for schedule in auto_schedules %}
+          <option value="{{ schedule.id }}" {% if selected_schedule.id == schedule.id %}selected{% endif %}>
+            {{ schedule.name }} {% if schedule.strategy_used %}({{ schedule.strategy_used }}){% endif %}
+          </option>
+          {% endfor %}
+        {% else %}
+          {% for schedule in manual_schedules %}
+          <option value="{{ schedule.id }}" {% if selected_schedule.id == schedule.id %}selected{% endif %}>
+            {{ schedule.name }}
+          </option>
+          {% endfor %}
+        {% endif %}
+      </select>
+    </div>
+  </div>
+
+  <div class="week-navigation">
+    <a href="?week_start={{ prev_week }}&schedule_id={{ selected_schedule.id }}" class="nav-btn nav-prev">← Previous Week</a>
+    
+    <div class="week-selector">
+      <label for="week_date">Jump to Week:</label>
+      <input type="date" id="week_date" class="week-input">
+    </div>
+    
+    <a href="?week_start={{ next_week }}&schedule_id={{ selected_schedule.id }}" class="nav-btn nav-next">Next Week →</a>
+  </div>
+
+  <div class="week-overview">
+    <div class="overview-stat">
+      <span class="stat-label">Total Shifts</span>
+      <span class="stat-value">{{ total_shifts }}</span>
+    </div>
+    <div class="overview-stat">
+      <span class="stat-label">Schedule</span>
+      <span class="stat-value">{{ selected_schedule.name if selected_schedule else 'None' }}</span>
+    </div>
+  </div>
+
+  {% if schedule_by_day %}
+  <div class="week-schedule">
+    {% for date, day_data in schedule_by_day.items() %}
+    <div class="day-column">
+      <div class="day-header">
+        <h3>{{ day_data.day_name }}</h3>
+        <p class="day-date">{{ day_data.short_date }}</p>
+      </div>
+      
+      <div class="day-shifts">
+        {% if day_data.shifts %}
+          {% for shift in day_data.shifts %}
+          <div class="shift-card">
+            <div class="shift-time">{{ shift.start_time }}–{{ shift.end_time }}</div>
+            <div class="shift-staff">{{ shift.staff_name }}</div>
+            <div class="shift-duration">{{ shift.duration }}h</div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-shifts">No shifts</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="no-schedule-message">
+    <p>No schedule data available for this week.</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+.roster-container {
+  padding: 40px;
+  background-color: #1a2332;
+  color: #e0e0e0;
+  min-height: 100vh;
+}
+
+.roster-header {
+  margin-bottom: 30px;
+}
+
+.roster-header h1 {
+  color: #4da6ff;
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: #9db3c4;
+  font-size: 14px;
+}
+
+.schedule-selector {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 20px;
+  background-color: #243447;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #3d5568;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.selector-group label {
+  color: #4da6ff;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.schedule-dropdown {
+  padding: 10px 12px;
+  background-color: #1a2332;
+  border: 1px solid #3d5568;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  min-width: 220px;
+}
+
+.schedule-dropdown:focus {
+  outline: none;
+  border-color: #4da6ff;
+}
+
+.week-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+  background-color: #243447;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #3d5568;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  background-color: #3d5568;
+  color: #e0e0e0;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  white-space: nowrap;
+}
+
+.nav-btn:hover {
+  background-color: #4da6ff;
+  color: #1a2332;
+}
+
+.week-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.week-selector label {
+  color: #4da6ff;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.week-input {
+  padding: 8px 12px;
+  background-color: #1a2332;
+  border: 1px solid #3d5568;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.week-input:focus {
+  outline: none;
+  border-color: #4da6ff;
+}
+
+.week-overview {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.overview-stat {
+  background-color: #243447;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #3d5568;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.stat-label {
+  color: #9db3c4;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  color: #4da6ff;
+  font-size: 24px;
+  font-weight: bold;
+  word-break: break-word;
+}
+
+.week-schedule {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.day-column {
+  background-color: #243447;
+  border-radius: 8px;
+  border: 1px solid #3d5568;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+}
+
+.day-header {
+  background-color: #1a2332;
+  padding: 15px;
+  border-bottom: 2px solid #4da6ff;
+  text-align: center;
+}
+
+.day-header h3 {
+  color: #4da6ff;
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+
+.day-date {
+  color: #9db3c4;
+  margin: 0;
+  font-size: 12px;
+}
+
+.day-shifts {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.shift-card {
+  background-color: #1a2332;
+  border: 1px solid #3d5568;
+  border-radius: 4px;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.shift-time {
+  color: #4da6ff;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.shift-staff {
+  color: #e0e0e0;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shift-duration {
+  color: #9db3c4;
+  font-size: 11px;
+}
+
+.no-shifts {
+  color: #7a8fa3;
+  text-align: center;
+  padding: 30px 10px;
+  font-size: 13px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-schedule-message {
+  background-color: #243447;
+  border: 1px solid #3d5568;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  color: #9db3c4;
+}
+
+@media (max-width: 1400px) {
+  .week-schedule {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .week-schedule {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .roster-container {
+    padding: 20px;
+  }
+
+  .schedule-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .selector-group {
+    width: 100%;
+  }
+
+  .schedule-dropdown {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .week-navigation {
+    flex-direction: column;
+  }
+
+  .week-schedule {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .day-column {
+    min-height: 300px;
+  }
+
+  .nav-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .week-navigation {
+    flex-direction: column;
+  }
+
+  .week-schedule {
+    grid-template-columns: 1fr;
+  }
+
+  .day-column {
+    min-height: auto;
+  }
+
+  .overview-stat {
+    flex: 0 0 auto;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+}
+</style>
+
+<script>
+document.getElementById('schedule_type').addEventListener('change', function(e) {
+  window.location.href = '?schedule_type=' + this.value + '&week_start=' + document.getElementById('week_date').value;
+});
+
+document.getElementById('schedule_id').addEventListener('change', function(e) {
+  window.location.href = '?schedule_id=' + this.value + '&week_start=' + document.getElementById('week_date').value;
+});
+
+document.getElementById('week_date').addEventListener('change', function(e) {
+  if (this.value) {
+    const scheduleId = document.getElementById('schedule_id').value;
+    window.location.href = '?week_start=' + this.value + '&schedule_id=' + scheduleId;
+  }
+});
+
+// Set the input to current week start
+document.getElementById('week_date').valueAsDate = new Date('{{ week_start }}');
+</script>
 {% endblock %}

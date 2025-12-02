@@ -7,16 +7,6 @@
         <h1 class="card-title">Administrator Login</h1>
         <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Access the admin dashboard</p>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flash-messages">
-              {% for category, message in messages %}
-                <li class="flash {{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
-
         <form method="post" action="{{ url_for('index_views.admin_login') }}">
             <div class="form-group">
                 <label for="admin-username">Administrator Username</label>

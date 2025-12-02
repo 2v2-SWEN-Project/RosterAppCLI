@@ -11,6 +11,10 @@ class Schedule(db.Model):
     # optional links to the staff the schedule is for and the admin who owns it
     staff_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
     admin_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+    # Track how the schedule was generated: 'manual' or 'auto'
+    generation_method = db.Column(db.String(20), default='manual', nullable=False)
+    # If auto-generated, store which strategy was used
+    strategy_used = db.Column(db.String(50), nullable=True)
 
     shifts = db.relationship("Shift", backref="schedule", lazy=True)
 
@@ -25,6 +29,8 @@ class Schedule(db.Model):
             "created_by": self.created_by,
             "staff_id": self.staff_id,
             "admin_id": self.admin_id,
+            "generation_method": self.generation_method,
+            "strategy_used": self.strategy_used,
             "shift_count": self.shift_count(),
             "shifts": [shift.get_json() for shift in self.shifts]
         }

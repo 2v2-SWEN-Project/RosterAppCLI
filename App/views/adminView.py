@@ -1,15 +1,93 @@
-# app/views/staff_views.py
-from flask import Blueprint, jsonify, request
+# app/views/admin_views.py
+from flask import Blueprint, jsonify, request, render_template, redirect, url_for, flash
+from flask_login import login_required, current_user
 from datetime import datetime
 from App.controllers import staff, auth, admin
 # Removed flask_jwt_extended import
 from sqlalchemy.exc import SQLAlchemyError
+from App.models import Shift, Schedule
+from App.database import db
 
 admin_view = Blueprint('admin_view', __name__, template_folder='../templates')
 
 # Based on the controllers in App/controllers/admin.py, admins can do the following actions:
 # 1. Create Schedule
 # 2. Get Schedule Report
+# 3. View Dashboard with real data
+
+@admin_view.route('/dashboard', methods=['GET'])
+def dashboard():
+    """Render the admin dashboard with real data."""
+    try:
+        total_staff = admin.get_total_staff_count()
+        shifts_this_week = admin.get_shifts_this_week()
+        pending_requests = admin.get_pending_swap_requests()
+        attendance = admin.get_staff_attendance()
+        
+        return render_template('admin/index.html',
+                             total_staff=total_staff,
+                             shifts_this_week=shifts_this_week,
+                             pending_requests_count=len(pending_requests),
+                             pending_requests=pending_requests,
+                             attendance=attendance)
+    except SQLAlchemyError as e:
+        return jsonify({"error": "Database error"}), 500
+
+@admin_view.route('/api/dashboard-overview', methods=['GET'])
+def dashboard_overview():
+    """API endpoint for dashboard overview metrics."""
+    try:
+        total_staff = admin.get_total_staff_count()
+        shifts_this_week = admin.get_shifts_this_week()
+        pending_requests = admin.get_pending_swap_requests()
+        
+        return jsonify({
+            "total_staff": total_staff,
+            "shifts_this_week": shifts_this_week,
+            "pending_requests": len(pending_requests)
+        }), 200
+    except SQLAlchemyError:
+        return jsonify({"error": "Database error"}), 500
+
+@admin_view.route('/api/staff-attendance', methods=['GET'])
+def staff_attendance():
+    """API endpoint for staff attendance data."""
+    try:
+        attendance = admin.get_staff_attendance()
+        return jsonify(attendance), 200
+    except SQLAlchemyError:
+        return jsonify({"error": "Database error"}), 500
+
+@admin_view.route('/api/pending-swap-requests', methods=['GET'])
+def pending_swap_requests():
+    """API endpoint for pending shift swap requests."""
+    try:
+        requests = admin.get_pending_swap_requests()
+        return jsonify(requests), 200
+    except SQLAlchemyError:
+        return jsonify({"error": "Database error"}), 500
+
+@admin_view.route('/api/swap-request/<int:request_id>/approve', methods=['POST'])
+def approve_swap_request(request_id):
+    """Approve a shift swap request."""
+    try:
+        swap_req = admin.approve_swap_request(request_id)
+        return jsonify({"message": "Swap request approved", "request": swap_req.get_json()}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except SQLAlchemyError:
+        return jsonify({"error": "Database error"}), 500
+
+@admin_view.route('/api/swap-request/<int:request_id>/deny', methods=['POST'])
+def deny_swap_request(request_id):
+    """Deny a shift swap request."""
+    try:
+        swap_req = admin.deny_swap_request(request_id)
+        return jsonify({"message": "Swap request denied", "request": swap_req.get_json()}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 404
+    except SQLAlchemyError:
+        return jsonify({"error": "Database error"}), 500
 
 @admin_view.route('/createSchedule', methods=['POST'])
 def createSchedule():
@@ -23,6 +101,7 @@ def createSchedule():
         return jsonify({"error": str(e)}), 403
     except SQLAlchemyError:
         return jsonify({"error": "Database error"}), 500
+
 
 @admin_view.route('/createShift', methods=['POST'])
 def createShift():
