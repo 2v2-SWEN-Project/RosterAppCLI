@@ -1,23 +1,27 @@
 {% extends "layout.html" %}
-{% block title %}Not Authorized{% endblock %}
-{% block page %}Not Auhtorized{% endblock %}
-
-{{ super() }}
+{% block title %}Not Authorized — Scheduloid{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row" style="margin-top: 10%;">
-        <div class="col s12 m10 offset-m1">
-            <div class="card-content">
-                <h1>401 - Not Authorized</h1>
-                <p>You do not have permission to access this resource. Please check your credentials and try again.</p>
-                <p>{{error}}</p>
+<div class="page-center">
+    <section class="card" style="max-width: 500px; width: 100%;">
+        <div class="card-header" style="text-align: center;">
+            <h1 class="card-title" style="color: #ef4444;">401 - Not Authorized</h1>
+            <p class="card-subtitle">Access Denied</p>
+        </div>
+        <div class="card-body" style="text-align: center;">
+            <p style="color: #94a3b8; margin: 0 0 1rem 0;">
+                You do not have permission to access this resource.
+            </p>
+            {% if error %}
+            <div class="notice-box" style="margin-bottom: 1.5rem;">
+                <p style="margin: 0;">{{ error }}</p>
             </div>
-            <div class="card-action">
-                <a href="/" class="waves-effect waves-light btn">Go Home</a>
-                <a href="javascript:history.back()" class="waves-effect waves-light btn">Go Back</a>
+            {% endif %}
+            <div class="flex-row" style="justify-content: center;">
+                <a href="/" class="btn primary">Go Home</a>
+                <a href="javascript:history.back()" class="btn">Go Back</a>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}

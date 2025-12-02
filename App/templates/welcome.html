@@ -1,83 +1,34 @@
 {% extends "layout.html" %}
-{% block title %}Welcome — Rostering App{% endblock %}
+{% block title %}Welcome — Scheduloid{% endblock %}
 
 {% block content %}
 <div class="page-center">
-    <section class="card card-form">
-        <h1 class="card-title">Welcome to the Rostering App</h1>
-        <p class="card-subtitle">Shift Scheduling Management System</p>
-        <p class="card-description">Efficiently manage your team's schedule</p>
-
-        <div class="button-group">
-            <a href="/admin/login" class="btn primary btn-block">Admin Login</a>
-            <a href="/staff/login" class="btn primary btn-block">Staff Login</a>
+    <section class="card" style="max-width: 450px; width: 100%;">
+        <div class="card-header" style="text-align: center;">
+            <h1 class="card-title">Login</h1>
+            <p class="card-subtitle">Shift Scheduling Management System</p>
         </div>
+        <div class="card-body">
+            <p style="text-align: center; color: #94a3b8; margin: 0 0 1.5rem 0; font-size: 0.95rem;">
+                Efficiently manage your team's schedule with our powerful rostering tools.
+            </p>
+            
+            <div class="flex-col" style="gap: 1rem;">
+                <a href="/admin/login" class="btn primary full-width" style="padding: 0.9rem 1rem; font-size: 1rem;">
+                    Admin Login
+                </a>
+                <a href="/staff/login" class="btn full-width" style="padding: 0.9rem 1rem; font-size: 1rem; background: #334155;">
+                    Staff Login
+                </a>
+            </div>
 
-        <style>
-            .button-group {
-                display: flex;
-                flex-direction: column;
-                gap: 12px;
-                margin-top: 30px;
-            }
-
-            .btn-block {
-                display: block;
-                width: 100%;
-                text-decoration: none;
-                text-align: center;
-                padding: 12px 20px !important;
-            }
-
-            .card-subtitle {
-                font-size: 16px;
-                color: #666;
-                margin-top: 5px;
-                margin-bottom: 5px;
-            }
-
-            .card-description {
-                font-size: 14px;
-                color: #999;
-                margin-bottom: 25px;
-            }
-
-        .staff-btn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 30px rgba(245, 87, 108, 0.4);
-        }
-
-        .login-btn:active {
-            transform: translateY(-2px);
-        }
-
-        .icon {
-            font-size: 24px;
-        }
-
-        .features {
-            margin-top: 50px;
-            padding-top: 40px;
-            border-top: 1px solid #eee;
-        }
-
-        .features h3 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            text-align: center;
-            .card-description {
-                font-size: 14px;
-                color: #999;
-                margin-bottom: 25px;
-            }
-        </style>
+            <div style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #334155;">
+                <p style="text-align: center; color: #64748b; font-size: 0.85rem; margin: 0;">
+                    New staff member? 
+                    <a href="/staff/signup" class="link">Create an account</a>
+                </p>
+            </div>
+        </div>
     </section>
 </div>
 {% endblock %}

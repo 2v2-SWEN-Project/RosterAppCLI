@@ -1,14 +1,49 @@
 {% extends "layout.html" %}
-{% block title %}User List — Rostering App{% endblock %}
+{% block title %}User List — Scheduloid{% endblock %}
 
 {% block nav_actions %}
 <a href="{{ url_for('index_views.admin_dashboard') }}" class="link">Back to Dashboard</a>
 {% endblock %}
 
 {% block content %}
-<div class="one-column-layout">
-    <section class="card">
-        <h2 class="card-title">User List</h2>
+<!-- Page Header Panel -->
+<section class="card">
+    <div class="card-header">
+        <h1 class="card-title">User List</h1>
+        <p class="card-subtitle">View all registered users in the system</p>
+    </div>
+</section>
+
+<!-- Summary Stats Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">User Statistics</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <div class="stat-box">
+                <p class="stat-label">Total Users</p>
+                <p class="stat-value">{{ users|length if users else 0 }}</p>
+            </div>
+            <div class="stat-box teal">
+                <p class="stat-label">Staff Members</p>
+                <p class="stat-value">{{ users|selectattr('role', 'equalto', 'staff')|list|length if users else 0 }}</p>
+            </div>
+            <div class="stat-box purple">
+                <p class="stat-label">Administrators</p>
+                <p class="stat-value">{{ users|selectattr('role', 'equalto', 'admin')|list|length if users else 0 }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- User Table Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">All Users</h2>
+        <p class="card-subtitle">Showing {{ users|length if users else 0 }} user(s)</p>
+    </div>
+    <div class="card-body">
         {% if users %}
         <table class="table">
             <thead>
@@ -16,46 +51,45 @@
                 <th>User ID</th>
                 <th>Username</th>
                 <th>Role</th>
+                <th>Status</th>
             </tr>
             </thead>
             <tbody>
             {% for user in users %}
             <tr>
                 <td>{{ user.id }}</td>
-                <td>{{ user.username }}</td>
-                <td>{{ user.role }}</td>
+                <td style="font-weight: 700; color: #60a5fa;">{{ user.username }}</td>
+                <td>
+                    {% if user.role == 'admin' %}
+                        <span style="color: #a78bfa; font-weight: 600;">Administrator</span>
+                    {% else %}
+                        <span style="color: #14b8a6; font-weight: 600;">Staff</span>
+                    {% endif %}
+                </td>
+                <td><span style="color: #14b8a6; font-weight: 600;">Active</span></td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
         {% else %}
-        <p style="color: #8b9dc3; font-weight: 600;">No users found.</p>
+        <div style="background: #0f172a; border-radius: 8px; padding: 2rem; text-align: center;">
+            <p style="margin: 0; font-size: 1rem; color: #94a3b8;">No users found.</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #64748b;">Users will appear here once they register.</p>
+        </div>
         {% endif %}
-    </section>
+    </div>
+</section>
 
-    <!-- <section class="card">
-        <h2 class="card-title">Weekly Staff Roster</h2>
-        <table class="table compact">
-            <thead>
-            <tr>
-                <th>Shift ID</th>
-                <th>Date &amp; Time</th>
-                <th>Staff ID</th>
-                <th>Status</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>1</td><td>2025-10-24 09:00–17:00</td><td>2</td><td>Assigned</td>
-            </tr>
-            </tbody>
-        </table>
-
-        <button class="btn primary full-width" title="View shift reports including start/end times and clock-in/clock-out data"
-        onclick="location.href='{{ url_for('index_views.shift_report') }}'">
-    Generate Shift Report
-</button>
-
-    </section> -->
-</div>
+<!-- Quick Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn" onclick="location.href='{{ url_for('index_views.admin_dashboard') }}'">Back to Dashboard</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.shift_report') }}'">Generate Shift Report</button>
+        </div>
+    </div>
+</section>
 {% endblock %}

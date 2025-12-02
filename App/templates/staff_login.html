@@ -1,56 +1,62 @@
 {% extends "layout.html" %}
-{% block title %}Staff Login — Rostering App{% endblock %}
+{% block title %}Staff Login — Scheduloid{% endblock %}
 
 {% block content %}
 <div class="page-center">
-    <section class="card card-form">
-        <h1 class="card-title">Staff Login</h1>
+    <section class="card" style="max-width: 400px; width: 100%;">
+        <div class="card-header" style="text-align: center;">
+            <h1 class="card-title">Staff Login</h1>
+            <p class="card-subtitle">Sign in to access your dashboard</p>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul class="flash-messages">
+                  {% for category, message in messages %}
+                    <li class="flash {{ category }}">{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
 
-        {# show flash messages (errors / success) #}
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flash-messages">
-              {% for category, message in messages %}
-                <li class="flash {{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
+            <form method="post" action="{{ url_for('index_views.staff_login') }}">
+                <div class="flex-col">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="staff-username">Username</label>
+                        <input
+                            id="staff-username"
+                            name="username"
+                            type="text"
+                            placeholder="Enter your username"
+                            value="{{ username or '' }}"
+                            required
+                        >
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="staff-password">Password</label>
+                        <input
+                            id="staff-password"
+                            name="password"
+                            type="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+                    </div>
+                    <div class="flex-row" style="gap: 0.5rem;">
+                        <input type="checkbox" name="remember_me" id="remember-me" style="width: auto; margin: 0;">
+                        <label for="remember-me" style="margin: 0; font-weight: 600; color: #94a3b8; cursor: pointer;">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 0.5rem;">Login</button>
+                </div>
+            </form>
 
-        <form method="post" action="{{ url_for('index_views.staff_login') }}">
-            <div class="form-group">
-                <label for="staff-username">Username</label>
-                <input
-                    id="staff-username"
-                    name="username"
-                    type="text"
-                    placeholder="Enter your username"
-                    value="{{ username or '' }}"
-                    required
-                >
+            <div style="text-align: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #334155;">
+                <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">
+                    Don't have an account?
+                    <a href="{{ url_for('index_views.staff_signup') }}" class="link">Sign up</a>
+                </p>
             </div>
-            <div class="form-group">
-                <label for="staff-password">Password</label>
-                <input
-                    id="staff-password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    required
-                >
-            </div>
-            <div class="form-group form-inline">
-                <label>
-                    <input type="checkbox" name="remember_me"> Remember me
-                </label>
-            </div>
-            <button type="submit" class="btn primary">Login</button>
-        </form>
-
-        <p class="auth-secondary">
-            Don’t have an account?
-            <a href="{{ url_for('index_views.staff_signup') }}">Sign up</a>
-        </p>
+        </div>
     </section>
 </div>
 {% endblock %}

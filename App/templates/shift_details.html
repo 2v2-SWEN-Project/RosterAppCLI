@@ -1,59 +1,68 @@
 {% extends "layout.html" %}
-{% block title %}Shift Details — Rostering App{% endblock %}
+{% block title %}Shift Details — Scheduloid{% endblock %}
 
 {% block nav_actions %}
 <a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
 {% endblock %}
 
 {% block content %}
-<section class="card" style="max-width: 600px;">
-    <h1 class="card-title">📅 Shift Details</h1>
-    <p style="margin: 0 0 1.5rem 0; font-size: 0.95rem; color: #4b5563; font-weight: 600;">View your assigned shift information</p>
-
-    <table class="detail-table">
-        <tbody>
-        <tr><th>Shift ID</th><td>1</td></tr>
-        <tr><th>Location</th><td>Front Desk</td></tr>
-        <tr><th>Date</th><td>2025-10-24 (Friday)</td></tr>
-        <tr><th>Start Time</th><td>09:00 AM</td></tr>
-        <tr><th>End Time</th><td>05:00 PM</td></tr>
-        <tr><th>Duration</th><td>8 hours</td></tr>
-        <tr><th>Status</th><td><span style="color: #14b8a6; font-weight: 700;">✓ Assigned</span></td></tr>
-        </tbody>
-    </table>
-
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-        <button class="btn primary" style="padding: 0.75rem 1rem; font-weight: 700;" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">
-            ⏱️ Clock In/Out
-        </button>
-        <button class="btn success" style="padding: 0.75rem 1rem; font-weight: 700;" onclick="location.href='{{ url_for('index_views.request_swap') }}'">
-            🔄 Request Swap
-        </button>
+<!-- Page Header -->
+<section class="card">
+    <div class="card-header">
+        <h1 class="card-title">Shift Details</h1>
+        <p class="card-subtitle">View your assigned shift information</p>
     </div>
 </section>
 
-<style>
-.detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
+<!-- Shift Information -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Shift Information</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-col" style="gap: 0;">
+            <div class="info-row">
+                <span class="info-label">Shift ID</span>
+                <span class="info-value">1</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Location</span>
+                <span class="info-value">Front Desk</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date</span>
+                <span class="info-value">2025-10-24 (Friday)</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Start Time</span>
+                <span class="info-value">09:00 AM</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">End Time</span>
+                <span class="info-value">05:00 PM</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Duration</span>
+                <span class="info-value">8 hours</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status</span>
+                <span class="info-value" style="color: #14b8a6; font-weight: 700;">Assigned</span>
+            </div>
+        </div>
+    </div>
+</section>
 
-.detail-table th {
-    text-align: left;
-    padding: 0.5rem 0.75rem;
-    width: 35%;
-    background: #f0f4f9;
-    border: 2px solid #bfdbfe;
-    color: #3b82f6;
-    font-weight: 700;
-}
-
-.detail-table td {
-    padding: 0.5rem 0.75rem;
-    border: 2px solid #bfdbfe;
-    color: #2d3748;
-}
-</style>
+<!-- Quick Actions -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn primary" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">Clock In/Out</button>
+            <button class="btn" style="background: #14b8a6;" onclick="location.href='{{ url_for('index_views.request_swap') }}'">Request Swap</button>
+        </div>
+    </div>
+</section>
 {% endblock %}

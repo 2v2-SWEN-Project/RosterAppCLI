@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block title %}My Schedule — Scheduloid{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header Panel -->
+<section class="card">
+    <div class="card-header">
+        <h1 class="card-title">My Weekly Schedule</h1>
+        <p class="card-subtitle">{{ week_start_display }} to {{ week_end_display }}</p>
+    </div>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!-- Navigation Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Week Navigation</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-between">
+            <a href="{{ url_for('index_views.staff_schedule', week_start=prev_week) }}" class="btn">
+                Previous Week
+            </a>
+            <div class="flex-row">
+                <span style="color: #94a3b8;">Jump to:</span>
+                <input type="date" id="week-picker" value="{{ week_start }}" 
+                       style="background: #0f172a; border: 1px solid #334155; color: #e2e8f0; padding: 0.5rem; border-radius: 4px;"
+                       onchange="window.location.href='{{ url_for('index_views.staff_schedule') }}?week_start=' + this.value">
+            </div>
+            <a href="{{ url_for('index_views.staff_schedule', week_start=next_week) }}" class="btn">
+                Next Week
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Summary Stats Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Week Summary</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <div class="stat-box teal">
+                <p class="stat-label">Total Shifts</p>
+                <p class="stat-value">{{ total_shifts }}</p>
+            </div>
+            <div class="stat-box">
+                <p class="stat-label">Status</p>
+                <p class="stat-value" style="font-size: 1.5rem; color: #14b8a6;">Active</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Calendar Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Weekly Calendar</h2>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem;">
+            {% for day_key, day_data in schedule_by_day.items() %}
+            <div style="background: #0f172a; border-radius: 8px; min-height: 180px; display: flex; flex-direction: column; border: 1px solid #334155;">
+                <div style="background: #334155; padding: 0.75rem; text-align: center; border-radius: 8px 8px 0 0; border-bottom: 2px solid #3b82f6;">
+                    <div style="font-weight: 700; color: #60a5fa; font-size: 0.9rem;">{{ day_data.day_name }}</div>
+                    <div style="font-size: 0.8rem; color: #94a3b8;">{{ day_data.short_date }}</div>
+                </div>
+                <div style="padding: 0.75rem; flex: 1; display: flex; flex-direction: column; justify-content: {% if day_data.shifts %}flex-start{% else %}center{% endif %};">
+                    {% if day_data.shifts %}
+                        {% for shift in day_data.shifts %}
+                        <div style="background: #1e293b; border-left: 3px solid #14b8a6; border-radius: 4px; padding: 0.5rem; margin-bottom: 0.5rem;">
+                            <div style="font-weight: 700; color: #14b8a6; font-size: 0.85rem;">{{ shift.start_time }} - {{ shift.end_time }}</div>
+                            <div style="font-size: 0.75rem; color: #94a3b8;">{{ shift.duration }} hours</div>
+                            <div style="font-size: 0.75rem; margin-top: 0.25rem;">
+                                {% if shift.status == 'completed' %}
+                                    <span style="color: #14b8a6;">Completed</span>
+                                {% elif shift.status == 'in-progress' %}
+                                    <span style="color: #3b82f6;">In Progress</span>
+                                {% else %}
+                                    <span style="color: #f59e0b;">Scheduled</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="margin: 0; color: #64748b; font-size: 0.85rem; text-align: center;">No shift</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn primary" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">
+                Clock In/Out
+            </button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_shifts') }}'">
+                View All Shifts
+            </button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.request_swap') }}'">
+                Request Swap
+            </button>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,15 +1,19 @@
 {% extends "layout.html" %}
-{% block title %}{{title}}{% endblock %}
-{% block page %}{{title}}{% endblock %}
-
-{{ super() }}
+{% block title %}{{ title }} — Scheduloid{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row" style="margin-top: 10%;">
-        <div class="col s12 m10 offset-m1">
-            <p>{{message}}</p>
+<div class="page-center">
+    <section class="card" style="max-width: 500px; width: 100%;">
+        <div class="card-header" style="text-align: center;">
+            <h1 class="card-title">{{ title }}</h1>
         </div>
-    </div>
+        <div class="card-body" style="text-align: center;">
+            <p style="color: #cbd5e1; margin: 0 0 1.5rem 0; font-size: 1rem;">{{ message }}</p>
+            <div class="flex-row" style="justify-content: center;">
+                <a href="/" class="btn primary">Go Home</a>
+                <a href="javascript:history.back()" class="btn">Go Back</a>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
