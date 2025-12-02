@@ -637,14 +637,30 @@ def create_schedule():
     
     if request.method == 'POST':
         try:
-            schedule_name = request.form.get('schedule_name', '').strip()
-            week_start = request.form.get('week_start')
-            week_end = request.form.get('week_end')
-            admin_id = session.get('user_id')
-            shift_ids = request.form.getlist('shifts')
+            # Support both form submissions and JSON payloads
+            payload = request.get_json(silent=True) if request.is_json else None
+            data = payload or request.form
+
+            schedule_name = (data.get('schedule_name') or data.get('scheduleName') or '').strip()
+            week_start = data.get('week_start') or data.get('weekStart')
+            week_end = data.get('week_end') or data.get('weekEnd')
+            admin_id = session.get('user_id') or (payload.get('admin_id') if payload else None)
+
+            # Normalise shift_ids to a list
+            if payload:
+                raw_shifts = data.get('shifts') or []
+                if isinstance(raw_shifts, (str, int)):
+                    shift_ids = [raw_shifts]
+                else:
+                    shift_ids = list(raw_shifts)
+            else:
+                shift_ids = request.form.getlist('shifts')
             
             if not all([schedule_name, week_start, week_end, admin_id]):
-                flash('All fields are required.', 'error')
+                error_msg = 'All fields are required.'
+                if request.is_json:
+                    return jsonify({'error': error_msg}), 400
+                flash(error_msg, 'error')
                 available_shifts = Shift.query.filter_by(schedule_id=None).all()
                 return render_template('create_schedule.html', available_shifts=available_shifts)
             
@@ -653,7 +669,10 @@ def create_schedule():
             end_date = datetime.fromisoformat(week_end)
             
             if end_date <= start_date:
-                flash('End date must be after start date.', 'error')
+                error_msg = 'End date must be after start date.'
+                if request.is_json:
+                    return jsonify({'error': error_msg}), 400
+                flash(error_msg, 'error')
                 available_shifts = Shift.query.filter_by(schedule_id=None).all()
                 return render_template('create_schedule.html', available_shifts=available_shifts)
             
@@ -680,12 +699,22 @@ def create_schedule():
             
             db.session.commit()
             
+            if request.is_json:
+                return jsonify({'message': 'Schedule created', 'schedule': new_schedule.get_json()}), 201
+
             flash(f'Schedule "{schedule_name}" created successfully with {len(shift_ids)} shifts!', 'success')
-            return redirect(url_for('index_views.admin_dashboard'))
+            return redirect(url_for(
+                'index_views.admin_roster',
+                schedule_id=new_schedule.id,
+                week_start=start_date.date().isoformat()
+            ))
         
         except Exception as e:
             db.session.rollback()
-            flash(f'Error creating schedule: {str(e)}', 'error')
+            error_msg = f'Error creating schedule: {str(e)}'
+            if request.is_json:
+                return jsonify({'error': error_msg}), 500
+            flash(error_msg, 'error')
             available_shifts = Shift.query.filter_by(schedule_id=None).all()
             return render_template('create_schedule.html', available_shifts=available_shifts)
     
@@ -794,3 +823,10 @@ def select_strategy():
         return redirect(url_for('index_views.admin_dashboard'))
 
     return render_template('select_strategy.html')
+
+@index_views.route('/admin/view-request', methods=['GET'])
+@admin_required
+def view_requests():
+    from App.models import ShiftSwapRequest
+    requests = ShiftSwapRequest.query.order_by(ShiftSwapRequest.created_at.desc()).all()
+    return render_template('admin_requests.html', requests=requests)
