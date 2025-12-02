@@ -1,310 +1,106 @@
 {% extends 'layout.html' %}
+{% block title %}Admin Dashboard — Scheduloid{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <div class="admin-actions">
-    <h2>Admin Actions</h2>
-    <a href="/admin/users" class="btn btn-primary">User List</a>
-    <a href="/admin/roster" class="btn btn-primary">Weekly Staff Roster</a>
-    <a href="/admin/create-shift" class="btn btn-primary">Create Shift</a>
-    <a href="/admin/create-schedule" class="btn btn-primary">Create Schedule</a>
-    <a href="/admin/select-schedule" class="btn btn-primary">Schedule Strategy</a>
-    <a href="/admin/view-request" class ="btn btn-primary">View Requests</a>
-    <a href="/admin/reports" class="btn btn-primary">View Reports</a>
-  </div>
-
-  <div class="dashboard-content">
-    <!-- Dashboard Overview -->
-    <div class="overview-section">
-      <h2>Dashboard Overview</h2>
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-value">{{ total_staff }}</div>
-          <div class="metric-label">TOTAL STAFF</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">{{ shifts_this_week }}</div>
-          <div class="metric-label">SHIFTS THIS WEEK</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-value">{{ pending_requests_count }}</div>
-          <div class="metric-label">PENDING REQUESTS</div>
-        </div>
-      </div>
+<div style="display: grid; grid-template-columns: 250px 1fr; gap: 1.5rem;">
+    <!-- Sidebar -->
+    <div>
+        <section class="card" style="position: sticky; top: 1.5rem;">
+            <div class="card-header">
+                <h2 class="card-title">Admin Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="flex-col" style="gap: 0.75rem;">
+                    <a href="/admin/users" class="btn full-width">User List</a>
+                    <a href="/admin/roster" class="btn full-width">Weekly Roster</a>
+                    <a href="/admin/create-shift" class="btn full-width">Create Shift</a>
+                    <a href="/admin/create-schedule" class="btn full-width">Create Schedule</a>
+                    <a href="/admin/select-schedule" class="btn full-width">Schedule Strategy</a>
+                    <a href="/admin/view-request" class="btn full-width">View Requests</a>
+                    <a href="/admin/reports" class="btn full-width">View Reports</a>
+                </div>
+            </div>
+        </section>
     </div>
 
-    <!-- Staff Attendance -->
-    <div class="attendance-section">
-      <h2>Staff Attendance</h2>
-      <table class="attendance-table">
-        <thead>
-          <tr>
-            <th>Staff Member</th>
-            <th>Clock In</th>
-            <th>Clock Out</th>
-            <th>Hours</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if attendance %}
-            {% for record in attendance %}
-            <tr>
-              <td>{{ record.staff_name }}</td>
-              <td>{{ record.clock_in }}</td>
-              <td>{{ record.clock_out }}</td>
-              <td>{{ record.hours }}</td>
-              <td class="status-{{ record.status.lower().replace(' ', '-') }}">{{ record.status }}</td>
-            </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="5">No attendance records</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
+    <!-- Main Content -->
+    <div class="flex-col" style="gap: 1.5rem;">
+        <!-- Page Header -->
+        <section class="card">
+            <div class="card-header">
+                <h1 class="card-title">Admin Dashboard</h1>
+                <p class="card-subtitle">Overview of your rostering system</p>
+            </div>
+        </section>
 
-    <!-- Pending Shift Swap Requests -->
-    <!-- <div class="requests-section">
-      <h2>Pending Shift Swap Requests</h2>
-      <table class="requests-table">
-        <thead>
-          <tr>
-            <th>Staff Member</th>
-            <th>Shift Date</th>
-            <th>Requesting Swap With</th>
-            <th>Reason</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% if pending_requests %}
-            {% for req in pending_requests %}
-            <tr>
-              <td>{{ req.requesting_staff_name }}</td>
-              <td>{{ req.shift_date }}</td>
-              <td>{{ req.requested_staff_name }}</td>
-              <td>{{ req.reason or 'N/A' }}</td>
-              <td class="actions">
-                <button class="btn btn-approve" onclick="approveRequest({{ req.id }})">Approve</button>
-                <button class="btn btn-deny" onclick="denyRequest({{ req.id }})">Deny</button>
-              </td>
-            </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="5">No pending requests</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div> -->
-  </div>
+        <!-- Stats Overview -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">Dashboard Overview</h2>
+            </div>
+            <div class="card-body">
+                <div class="flex-row">
+                    <div class="stat-box">
+                        <p class="stat-label">Total Staff</p>
+                        <p class="stat-value">{{ total_staff }}</p>
+                    </div>
+                    <div class="stat-box teal">
+                        <p class="stat-label">Shifts This Week</p>
+                        <p class="stat-value">{{ shifts_this_week }}</p>
+                    </div>
+                    <div class="stat-box amber">
+                        <p class="stat-label">Pending Requests</p>
+                        <p class="stat-value">{{ pending_requests_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Staff Attendance -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">Staff Attendance</h2>
+                <p class="card-subtitle">Today's attendance records</p>
+            </div>
+            <div class="card-body">
+                {% if attendance %}
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Staff Member</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Hours</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance %}
+                        <tr>
+                            <td style="font-weight: 600; color: #60a5fa;">{{ record.staff_name }}</td>
+                            <td>{{ record.clock_in }}</td>
+                            <td>{{ record.clock_out }}</td>
+                            <td>{{ record.hours }}</td>
+                            <td>
+                                {% if record.status == 'Present' %}
+                                <span style="color: #14b8a6; font-weight: 600;">Present</span>
+                                {% elif record.status == 'Clocked In' %}
+                                <span style="color: #fbbf24; font-weight: 600;">Clocked In</span>
+                                {% else %}
+                                <span style="color: #ef4444; font-weight: 600;">{{ record.status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="background: #0f172a; border-radius: 8px; padding: 2rem; text-align: center;">
+                    <p style="margin: 0; color: #94a3b8;">No attendance records for today.</p>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
 </div>
-
-<style>
-.dashboard-container {
-  display: flex;
-  gap: 30px;
-  padding: 30px;
-  background-color: #1a2332;
-  color: #e0e0e0;
-  min-height: 100vh;
-}
-
-.admin-actions {
-  flex: 0 0 250px;
-  background-color: #243447;
-  padding: 20px;
-  border-radius: 8px;
-  height: fit-content;
-}
-
-.admin-actions h2 {
-  color: #4da6ff;
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-.admin-actions .btn {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-  background-color: #3d5568;
-  color: #e0e0e0;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.3s;
-  text-align: center;
-  text-decoration: none;
-}
-
-.admin-actions .btn:hover {
-  background-color: #4da6ff;
-  color: #1a2332;
-}
-
-.dashboard-content {
-  flex: 1;
-}
-
-.overview-section, .attendance-section, .requests-section {
-  margin-bottom: 40px;
-  background-color: #243447;
-  padding: 25px;
-  border-radius: 8px;
-  border: 1px solid #3d5568;
-}
-
-.overview-section h2, .attendance-section h2, .requests-section h2 {
-  color: #4da6ff;
-  margin-bottom: 20px;
-  font-size: 18px;
-}
-
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-
-.metric-card {
-  background-color: #1a2332;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid #3d5568;
-  text-align: center;
-}
-
-.metric-value {
-  font-size: 40px;
-  font-weight: bold;
-  color: #4da6ff;
-  margin-bottom: 10px;
-}
-
-.metric-label {
-  font-size: 12px;
-  color: #9db3c4;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.attendance-table, .requests-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-.attendance-table thead, .requests-table thead {
-  background-color: #1a2332;
-  border-bottom: 2px solid #4da6ff;
-}
-
-.attendance-table th, .requests-table th {
-  padding: 12px;
-  text-align: left;
-  color: #4da6ff;
-  font-weight: 600;
-}
-
-.attendance-table td, .requests-table td {
-  padding: 12px;
-  border-bottom: 1px solid #3d5568;
-  color: #e0e0e0;
-}
-
-.attendance-table tbody tr:hover, .requests-table tbody tr:hover {
-  background-color: #1a2332;
-}
-
-.status-present {
-  color: #00d9ff;
-  font-weight: 600;
-}
-
-.status-absent {
-  color: #ff6b6b;
-  font-weight: 600;
-}
-
-.status-clocked-in {
-  color: #ffd700;
-  font-weight: 600;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-approve {
-  background-color: #00d9ff;
-  color: #1a2332;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
-  transition: background-color 0.3s;
-}
-
-.btn-approve:hover {
-  background-color: #00b8cc;
-}
-
-.btn-deny {
-  background-color: #8b5cf6;
-  color: white;
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 12px;
-  transition: background-color 0.3s;
-}
-
-.btn-deny:hover {
-  background-color: #7c3aed;
-}
-</style>
-
-<script>
-function approveRequest(requestId) {
-  fetch(`/api/swap-request/${requestId}/approve`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    alert('Request approved');
-    location.reload();
-  })
-  .catch(error => console.error('Error:', error));
-}
-
-function denyRequest(requestId) {
-  fetch(`/api/swap-request/${requestId}/deny`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    alert('Request denied');
-    location.reload();
-  })
-  .catch(error => console.error('Error:', error));
-}
-</script>
 {% endblock %}

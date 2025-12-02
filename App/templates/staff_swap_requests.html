@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+{% block title %}Swap Requests — Scheduloid{% endblock %}
+
+{% block nav_actions %}
+<a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header Panel -->
+<section class="card">
+    <div class="card-header">
+        <h1 class="card-title">My Swap Requests</h1>
+        <p class="card-subtitle">View and track your shift swap requests</p>
+    </div>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!-- Request Summary -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Request Summary</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <div class="stat-box amber">
+                <p class="stat-label">Pending</p>
+                <p class="stat-value">{{ made_requests|selectattr('status', 'equalto', 'pending')|list|length }}</p>
+            </div>
+            <div class="stat-box teal">
+                <p class="stat-label">Approved</p>
+                <p class="stat-value">{{ made_requests|selectattr('status', 'equalto', 'approved')|list|length }}</p>
+            </div>
+            <div class="stat-box purple">
+                <p class="stat-label">Denied</p>
+                <p class="stat-value">{{ made_requests|selectattr('status', 'equalto', 'denied')|list|length }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Requests Received Panel -->
+    <section class="card">
+        <div class="card-header">
+            <h2 class="card-title">Requests Received</h2>
+            <p class="card-subtitle">Other staff members want to swap shifts with you</p>
+        </div>
+        <div class="card-body">
+            {% if received_requests %}
+            <div class="flex-col">
+                {% for req in received_requests %}
+                <div class="request-card pending">
+                    <div class="flex-between" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155;">
+                        <span style="font-weight: 700; color: #14b8a6;">From: {{ req.requesting_staff.username if req.requesting_staff else 'Unknown' }}</span>
+                        <span style="font-size: 0.8rem; color: #94a3b8;">{{ req.created_at.strftime('%Y-%m-%d %H:%M') if req.created_at else '' }}</span>
+                    </div>
+                    <div class="flex-col" style="gap: 0.25rem; margin-bottom: 0.75rem;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;"><strong style="color: #94a3b8;">Shift:</strong> {{ req.shift.start_time.strftime('%Y-%m-%d %H:%M') if req.shift else 'N/A' }} - {{ req.shift.end_time.strftime('%H:%M') if req.shift else 'N/A' }}</p>
+                        <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;"><strong style="color: #94a3b8;">Reason:</strong> {{ req.reason or 'No reason provided' }}</p>
+                    </div>
+                    <form method="post" action="{{ url_for('staff_views.staff_swap_requests') }}" class="flex-row" style="padding-top: 0.75rem; border-top: 1px solid #334155;">
+                        <input type="hidden" name="request_id" value="{{ req.id }}">
+                        <button type="submit" name="action" value="accept" class="btn success" style="padding: 0.5rem 1rem;">Accept</button>
+                        <button type="submit" name="action" value="decline" class="btn danger" style="padding: 0.5rem 1rem;">Decline</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="background: #0f172a; border-radius: 6px; padding: 1.5rem; text-align: center;">
+                <p style="margin: 0; color: #94a3b8; font-size: 0.95rem;">No pending swap requests from other staff.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Requests Made Panel -->
+    <section class="card">
+        <div class="card-header">
+            <h2 class="card-title">My Requests</h2>
+            <p class="card-subtitle">Swap requests you've submitted to admin</p>
+        </div>
+        <div class="card-body">
+            {% if made_requests %}
+            <div class="flex-col">
+                {% for req in made_requests %}
+                <div class="request-card {{ req.status }}">
+                    <div class="flex-between" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid #334155;">
+                        <span style="font-weight: 700; color: #60a5fa;">Swap with: {{ req.requested_staff.username if req.requested_staff else 'Unknown' }}</span>
+                        <span class="request-status status-{{ req.status }}">
+                            {% if req.status == 'pending' %}
+                            <span style="background: #78350f; color: #fde68a; padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; font-weight: 700;">PENDING ADMIN REVIEW</span>
+                            {% elif req.status == 'approved' %}
+                            <span style="background: #064e3b; color: #d1fae5; padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; font-weight: 700;">APPROVED BY ADMIN</span>
+                            {% else %}
+                            <span style="background: #7f1d1d; color: #fee2e2; padding: 0.25rem 0.75rem; border-radius: 3px; font-size: 0.75rem; font-weight: 700;">DENIED BY ADMIN</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="flex-col" style="gap: 0.25rem;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;"><strong style="color: #94a3b8;">Shift:</strong> {{ req.shift.start_time.strftime('%Y-%m-%d %H:%M') if req.shift else 'N/A' }} - {{ req.shift.end_time.strftime('%H:%M') if req.shift else 'N/A' }}</p>
+                        <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;"><strong style="color: #94a3b8;">Reason:</strong> {{ req.reason or 'No reason provided' }}</p>
+                        <p style="margin: 0; font-size: 0.9rem; color: #cbd5e1;"><strong style="color: #94a3b8;">Submitted:</strong> {{ req.created_at.strftime('%Y-%m-%d %H:%M') if req.created_at else 'N/A' }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div style="background: #0f172a; border-radius: 6px; padding: 1.5rem; text-align: center;">
+                <p style="margin: 0; color: #94a3b8; font-size: 0.95rem;">You haven't made any swap requests yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<!-- Quick Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn primary" onclick="location.href='{{ url_for('index_views.request_swap') }}'">Request New Swap</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_dashboard') }}'">Back to Dashboard</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_shifts') }}'">My Shifts</button>
+        </div>
+    </div>
+</section>
+
+<style>
+.request-card {
+    background: #0f172a;
+    border: 2px solid #334155;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.request-card.pending { border-color: #f59e0b; }
+.request-card.approved { border-color: #14b8a6; }
+.request-card.denied { border-color: #ef4444; }
+
+.request-status { font-weight: 700; font-size: 0.85rem; }
+.status-pending { color: #f59e0b; }
+.status-approved { color: #14b8a6; }
+.status-denied { color: #ef4444; }
+
+.btn.danger { background: #ef4444; color: white; }
+.btn.danger:hover { background: #dc2626; }
+</style>
+{% endblock %}

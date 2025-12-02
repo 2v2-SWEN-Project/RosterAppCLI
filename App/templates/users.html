@@ -1,55 +1,66 @@
 {% extends "layout.html" %}
-{% block title %}App Users{% endblock %}
-{% block page %}App Users{% endblock %}
-
-{{ super() }}
+{% block title %}App Users — Scheduloid{% endblock %}
 
 {% block content %}
-    <div class="row">
-        <p>
-            This is table is renderd on the Server. Flask gets the data from the database and uses jinja templates to dyanmically render this page when a request is sent to <a href="/users">/users</a>.
-        </p>
+<!-- Page Header -->
+<section class="card">
+    <div class="card-header">
+        <h1 class="card-title">App Users</h1>
+        <p class="card-subtitle">Server-rendered user management page</p>
     </div>
+</section>
 
-    <div class="row">
-      <form class="col s12" method="POST" action="/users">
-        
-        <div class="row">
-          <div class="input-field col s6">
-            <input placeholder="Username" name="username" type="text" class="validate">
-            <label for="username">Username</label>
-          </div>
-          <div class="input-field col s6">
-            <input placeholder="password" name="password" type="password" class="validate">
-            <label for="password">Password</label>
-          </div>
+<!-- Add User Form -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Add New User</h2>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/users">
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" id="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="password">Password</label>
+                    <input type="password" name="password" id="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn primary">Add User</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- Users Table -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">All Users</h2>
+        <p class="card-subtitle">{{ users|length if users else 0 }} user(s) registered</p>
+    </div>
+    <div class="card-body">
+        {% if users %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td style="font-weight: 600; color: #60a5fa;">{{ user.username }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="background: #0f172a; border-radius: 8px; padding: 2rem; text-align: center;">
+            <p style="margin: 0; color: #94a3b8;">No users found. Add a user using the form above.</p>
         </div>
-      
-        <div class="row">
-          <div class="input-field col s12">
-            <button class="btn waves-effect waves-light right purple" type="submit" name="action">Submit</button>
-          </div>
-        </div> 
-
-      </form>
+        {% endif %}
     </div>
-
-    <div class="row">
-      <table>
-        <thead>
-          <tr>
-            <th>Id</th><th>Username</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for user in users %}
-            <tr>
-                <td>{{user.id}}</td>
-                <td>{{user.username}}</td>
-            </tr>
-          {% endfor %}
-        <tbody>
-      </table>
-    </div>
-
+</section>
 {% endblock %}

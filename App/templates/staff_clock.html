@@ -1,107 +1,138 @@
 {% extends "layout.html" %}
-{% block title %}Clock In / Out — Rostering App{% endblock %}
+{% block title %}Clock In / Out — Scheduloid{% endblock %}
 
 {% block nav_actions %}
 <a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
 {% endblock %}
 
 {% block content %}
-<div class="page-center">
-    <section class="card" style="max-width: 500px;">
+<!-- Page Header Panel -->
+<section class="card">
+    <div class="card-header">
         <h1 class="card-title">Clock In / Clock Out</h1>
-        <p style="margin: 0 0 1.5rem 0; font-size: 0.95rem; color: #cbd5e1; font-weight: 600;">Track your shift start and end times</p>
+        <p class="card-subtitle">Track your shift start and end times</p>
+    </div>
+</section>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            <ul class="flash-messages">
-              {% for category, message in messages %}
-                <li class="flash {{ category }}">{{ message }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        {% endwith %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
-        {% if shift %}
-        <section style="background: #1e293b; border: 2px solid #14b8a6; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
-            <h3 style="margin: 0 0 0.75rem 0; color: #14b8a6; font-weight: 700;">Today's Shift</h3>
-            <table class="detail-table">
-                <tbody>
-                <tr><th>Shift Date</th><td>{{ shift.start_time[:10] if shift.start_time else 'N/A' }}</td></tr>
-                <tr><th>Assigned Time</th><td>{{ shift.start_time[11:16] if shift.start_time else 'N/A' }} - {{ shift.end_time[11:16] if shift.end_time else 'N/A' }}</td></tr>
-                <tr><th>Current Status</th><td>
-                    {% if shift.clock_out %}
-                        <span style="color: #14b8a6; font-weight: 700;">Completed</span>
-                    {% elif shift.clock_in %}
-                        <span style="color: #3b82f6; font-weight: 700;">Started</span>
-                    {% else %}
-                        <span style="color: #f59e0b; font-weight: 700;">Not Started</span>
-                    {% endif %}
-                </td></tr>
-                </tbody>
-            </table>
-        </section>
-
-        <section style="background: #1e293b; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 1rem; margin-bottom: 1.5rem;">
-            <h3 style="margin: 0 0 0.75rem 0; color: #3b82f6; font-weight: 700;">Today's Record</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-weight: 600;">
-                <div>
-                    <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Clock In Time</p>
-                    <p style="margin: 0; color: #3b82f6; font-size: 1.2rem;">{% if shift.clock_in %}{{ shift.clock_in[11:19] }}{% else %}—{% endif %}</p>
-                </div>
-                <div>
-                    <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Clock Out Time</p>
-                    <p style="margin: 0; color: #3b82f6; font-size: 1.2rem;">{% if shift.clock_out %}{{ shift.clock_out[11:19] }}{% else %}—{% endif %}</p>
-                </div>
+{% if shift %}
+<!-- Today's Shift Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Today's Shift</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-col" style="gap: 0;">
+            <div class="info-row">
+                <span class="info-label">Shift Date</span>
+                <span class="info-value">{{ shift.start_time[:10] if shift.start_time else 'N/A' }}</span>
             </div>
-        </section>
+            <div class="info-row">
+                <span class="info-label">Assigned Time</span>
+                <span class="info-value">{{ shift.start_time[11:16] if shift.start_time else 'N/A' }} - {{ shift.end_time[11:16] if shift.end_time else 'N/A' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Current Status</span>
+                <span class="info-value">
+                    {% if shift.clock_out %}
+                        <span style="color: #14b8a6;">Completed</span>
+                    {% elif shift.clock_in %}
+                        <span style="color: #3b82f6;">In Progress</span>
+                    {% else %}
+                        <span style="color: #f59e0b;">Not Started</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
 
+<!-- Today's Record Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Today's Record</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <div class="stat-box">
+                <p class="stat-label">Clock In Time</p>
+                <p class="stat-value" style="font-size: 1.5rem;">{% if shift.clock_in %}{{ shift.clock_in[11:19] }}{% else %}—{% endif %}</p>
+            </div>
+            <div class="stat-box teal">
+                <p class="stat-label">Clock Out Time</p>
+                <p class="stat-value" style="font-size: 1.5rem;">{% if shift.clock_out %}{{ shift.clock_out[11:19] }}{% else %}—{% endif %}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Clock Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Clock Actions</h2>
+    </div>
+    <div class="card-body">
         <form method="post" action="{{ url_for('index_views.staff_clock') }}">
             <input type="hidden" name="shift_id" value="{{ shift.id }}">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
-                <button type="submit" name="action" value="clock_in" class="btn primary" style="padding: 0.75rem 1rem; font-size: 1rem;" {% if shift.clock_in %}disabled style="opacity: 0.5; cursor: not-allowed; padding: 0.75rem 1rem; font-size: 1rem;"{% endif %}>
+            <div class="flex-row">
+                <button type="submit" name="action" value="clock_in" class="btn primary" style="padding: 0.75rem 2rem;" {% if shift.clock_in %}disabled style="opacity: 0.5; cursor: not-allowed; padding: 0.75rem 2rem;"{% endif %}>
                     Clock In
                 </button>
-                <button type="submit" name="action" value="clock_out" class="btn success" style="padding: 0.75rem 1rem; font-size: 1rem;" {% if not shift.clock_in or shift.clock_out %}disabled style="opacity: 0.5; cursor: not-allowed; padding: 0.75rem 1rem; font-size: 1rem;"{% endif %}>
+                <button type="submit" name="action" value="clock_out" class="btn success" style="padding: 0.75rem 2rem;" {% if not shift.clock_in or shift.clock_out %}disabled style="opacity: 0.5; cursor: not-allowed; padding: 0.75rem 2rem;"{% endif %}>
                     Clock Out
                 </button>
             </div>
         </form>
-        {% else %}
-        <section style="background: #1e293b; border: 2px solid #14b8a6; border-radius: 8px; padding: 1.5rem; text-align: center;">
-            <h3 style="margin: 0 0 0.75rem 0; color: #14b8a6; font-weight: 700;">Shift Information</h3>
-            <p style="margin: 0; font-size: 1rem; color: #cbd5e1; font-weight: 600;">You currently have no shifts assigned.</p>
-            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #94a3b8;">Contact your administrator to request shift assignments.</p>
-        </section>
-        {% endif %}
+    </div>
+</section>
 
-        <section style="background: #1e293b; border-left: 4px solid #f59e0b; border-radius: 4px; padding: 1rem; margin-top: 1.5rem;">
-            <p style="margin: 0; font-size: 0.9rem; color: #fbbf24; font-weight: 700;">Please ensure you clock in when you arrive and clock out when you leave. Accurate records are important for payroll and scheduling.</p>
-        </section>
-    </section>
-</div>
+{% else %}
+<!-- No Shift Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Shift Information</h2>
+    </div>
+    <div class="card-body">
+        <div style="background: #0f172a; border-radius: 8px; padding: 2rem; text-align: center;">
+            <p style="margin: 0; font-size: 1rem; color: #94a3b8;">You currently have no shifts assigned for today.</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #64748b;">Contact your administrator to request shift assignments.</p>
+        </div>
+    </div>
+</section>
+{% endif %}
 
-<style>
-.detail-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-    font-weight: 600;
-}
+<!-- Important Notice Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Important Notice</h2>
+    </div>
+    <div class="card-body">
+        <div class="notice-box">
+            <p>Please ensure you clock in when you arrive and clock out when you leave. Accurate records are important for payroll and scheduling.</p>
+        </div>
+    </div>
+</section>
 
-.detail-table th {
-    text-align: left;
-    padding: 0.35rem 0.6rem;
-    width: 40%;
-    background: transparent;
-    border-bottom: 2px solid #14b8a6;
-    color: #14b8a6;
-    font-weight: 700;
-}
-
-.detail-table td {
-    padding: 0.35rem 0.6rem;
-    border-bottom: 1px solid #334155;
-    color: #14b8a6;
-}
-</style>
+<!-- Quick Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_dashboard') }}'">Dashboard</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_shifts') }}'">My Shifts</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_schedule') }}'">My Schedule</button>
+        </div>
+    </div>
+</section>
 {% endblock %}

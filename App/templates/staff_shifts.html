@@ -1,75 +1,136 @@
 {% extends "layout.html" %}
-{% block title %}Completed Shifts — Rostering App{% endblock %}
+{% block title %}My Shifts — Scheduloid{% endblock %}
 
 {% block nav_actions %}
 <a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Back to Dashboard</a>
 {% endblock %}
 
 {% block content %}
+<!-- Page Header Panel -->
 <section class="card">
-    <h1 class="card-title">Your Completed Shifts</h1>
-    <p style="margin: 0 0 1.5rem 0; font-size: 0.95rem; color: #cbd5e1; font-weight: 600;">View all your completed shifts and hours worked</p>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flash-messages">
-          {% for category, message in messages %}
-            <li class="flash {{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-
-    {% if shifts %}
-    <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-        <span style="font-weight: 700; color: #cbd5e1;">Showing {{ shifts|length }} completed shift(s)</span>
+    <div class="card-header">
+        <h1 class="card-title">My Shifts</h1>
+        <p class="card-subtitle">View all your shifts and hours worked</p>
     </div>
+</section>
 
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Shift Date</th>
-            <th>Clock In</th>
-            <th>Clock Out</th>
-            <th>Hours Worked</th>
-            <th>Status</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for shift in shifts %}
-        <tr>
-            <td>{{ shift.start_time.strftime('%Y-%m-%d (%a)') }}</td>
-            <td>{{ shift.clock_in.strftime('%H:%M') }}</td>
-            <td>{{ shift.clock_out.strftime('%H:%M') }}</td>
-            <td>{% if shift.clock_in and shift.clock_out %}{{ "%.2f"|format((shift.clock_out - shift.clock_in).total_seconds() / 3600) }}{% else %}0.00{% endif %}</td>
-            <td><span style="color: #14b8a6; font-weight: 700;">Completed</span></td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 
-    <div style="background: #1e293b; border-left: 4px solid #3b82f6; border-radius: 4px; padding: 1.25rem; margin-top: 1.5rem;">
-        <h3 style="margin: 0 0 0.75rem 0; color: #3b82f6; font-weight: 700;">Summary Statistics</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; font-weight: 600;">
-            <div>
-                <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Total Shifts</p>
-                <p style="margin: 0; color: #3b82f6; font-size: 1.5rem;">{{ shifts|length }}</p>
+<!-- Filter Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Filter Shifts</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <a href="{{ url_for('index_views.staff_shifts') }}" class="btn {% if not request.args.get('filter') or request.args.get('filter') == 'all' %}primary{% endif %}">All Shifts</a>
+            <a href="{{ url_for('index_views.staff_shifts', filter='upcoming') }}" class="btn {% if request.args.get('filter') == 'upcoming' %}primary{% endif %}">Upcoming</a>
+            <a href="{{ url_for('index_views.staff_shifts', filter='completed') }}" class="btn {% if request.args.get('filter') == 'completed' %}primary{% endif %}">Completed</a>
+        </div>
+    </div>
+</section>
+
+<!-- Shifts Table Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Shift List</h2>
+        <p class="card-subtitle">Showing {{ shifts|length if shifts else 0 }} shift(s)</p>
+    </div>
+    <div class="card-body">
+        {% if shifts %}
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Shift Date</th>
+                <th>Scheduled Time</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Hours</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for shift in shifts %}
+            <tr>
+                <td>{{ shift.start_time.strftime('%Y-%m-%d (%a)') }}</td>
+                <td>{{ shift.start_time.strftime('%H:%M') }} - {{ shift.end_time.strftime('%H:%M') }}</td>
+                <td>{% if shift.clock_in %}{{ shift.clock_in.strftime('%H:%M') }}{% else %}—{% endif %}</td>
+                <td>{% if shift.clock_out %}{{ shift.clock_out.strftime('%H:%M') }}{% else %}—{% endif %}</td>
+                <td>{{ "%.1f"|format((shift.end_time - shift.start_time).total_seconds() / 3600) }}</td>
+                <td>
+                    {% if shift.clock_out %}
+                        <span style="color: #14b8a6; font-weight: 600;">Completed</span>
+                    {% elif shift.clock_in %}
+                        <span style="color: #3b82f6; font-weight: 600;">In Progress</span>
+                    {% else %}
+                        <span style="color: #f59e0b; font-weight: 600;">Scheduled</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('index_views.staff_shift_details') }}?id={{ shift.id }}" class="btn" style="padding: 0.25rem 0.75rem; font-size: 0.85rem;">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="background: #0f172a; border-radius: 8px; padding: 2rem; text-align: center;">
+            <p style="margin: 0; font-size: 1rem; color: #94a3b8;">No shifts found.</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #64748b;">Check back later for new shift assignments.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Summary Statistics Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Summary Statistics</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <div class="stat-box">
+                <p class="stat-label">Total Shifts</p>
+                <p class="stat-value">{{ shifts|length if shifts else 0 }}</p>
             </div>
-            <div>
-                <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Total Hours</p>
-                <p style="margin: 0; color: #3b82f6; font-size: 1.5rem;">{{ total_hours }}</p>
+            <div class="stat-box">
+                <p class="stat-label">Hours Worked</p>
+                <p class="stat-value">{{ total_hours }}</p>
             </div>
-            <div>
-                <p style="margin: 0 0 0.25rem 0; color: #cbd5e1; font-size: 0.85rem; text-transform: uppercase;">Completion Rate</p>
-                <p style="margin: 0; color: #14b8a6; font-size: 1.5rem;">{{ completion_rate }}%</p>
+            <div class="stat-box teal">
+                <p class="stat-label">Completion Rate</p>
+                <p class="stat-value">{{ completion_rate }}%</p>
             </div>
         </div>
     </div>
-    {% else %}
-    <section style="background: #7c2d12; border-left: 4px solid #8b5cf6; border-radius: 4px; padding: 1.5rem; text-align: center;">
-        <p style="margin: 0; font-size: 1rem; color: #fed7aa; font-weight: 700;">No completed shifts yet.</p>
-        <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #fed7aa;">Once you complete a shift by clocking in and out, it will appear here.</p>
-    </section>
-    {% endif %}
+</section>
+
+<!-- Quick Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn primary" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">
+                Clock In/Out
+            </button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_schedule') }}'">
+                View Schedule
+            </button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.request_swap') }}'">
+                Request Swap
+            </button>
+        </div>
+    </div>
 </section>
 {% endblock %}

@@ -1,5 +1,6 @@
 from flask import Blueprint, redirect, render_template, jsonify, request, url_for, flash, session
 from App.controllers import create_user, initialize, login
+from App.database import db
 from functools import wraps
 
 index_views = Blueprint('index_views', __name__, template_folder='../templates')
@@ -187,64 +188,165 @@ def staff_clock():
 
 @index_views.route('/staff/request-swap', methods=['GET', 'POST'])
 def request_swap():
+    from App.models import Shift, Staff, ShiftSwapRequest
+    from App.database import db
+    
+    staff_id = session.get('user_id')
+    
     if request.method == 'POST':
         shift_id = request.form.get('shift_id', '').strip()
-        target_staff = request.form.get('target_staff', '').strip()
+        target_staff_id = request.form.get('target_staff', '').strip()
         reason = request.form.get('reason', '').strip()
 
-        if not shift_id or not target_staff or not reason:
+        if not shift_id or not target_staff_id or not reason:
             flash('All fields are required.', 'error')
-            return render_template('request_swap.html')
+        else:
+            try:
+                # Create new swap request
+                new_request = ShiftSwapRequest(
+                    requesting_staff_id=staff_id,
+                    requested_staff_id=int(target_staff_id),
+                    shift_id=int(shift_id),
+                    reason=reason,
+                    status='pending'
+                )
+                db.session.add(new_request)
+                db.session.commit()
+                flash('Shift swap request submitted successfully! Staff member has been notified.', 'success')
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Could not submit swap request: {e}', 'error')
+        
+        return redirect(url_for('index_views.request_swap'))
 
-        try:
-            # TODO: Call your real shift swap controller here
-            # e.g. shift_controller.request_swap(shift_id, target_staff, reason)
-            flash(
-                f'Shift swap request submitted successfully! Staff member has been notified.',
-                'success'
-            )
-        except Exception as e:
-            flash(f'Could not submit swap request: {e}', 'error')
-
-        return render_template('request_swap.html')
-
-    # GET
-    return render_template('request_swap.html')
+    # GET - fetch user's shifts and other staff members
+    my_shifts = []
+    other_staff = []
+    
+    if staff_id:
+        from datetime import datetime
+        # Get upcoming shifts for this staff member
+        my_shifts = Shift.query.filter(
+            Shift.staff_id == staff_id,
+            Shift.start_time >= datetime.now()
+        ).order_by(Shift.start_time.asc()).all()
+        
+        # Get other staff members (exclude current user)
+        other_staff = Staff.query.filter(Staff.id != staff_id, Staff.role == 'staff').all()
+    
+    return render_template('request_swap.html', my_shifts=my_shifts, other_staff=other_staff)
 
 @index_views.route('/staff/schedule', methods=['GET'])
 def staff_schedule():
-    # For now, reuse the weekly roster page as the staff's "View Schedule"
-    return render_template('weekly_roster.html')
+    """Staff's weekly schedule view."""
+    from App.models import Shift
+    from datetime import datetime, timedelta
+    
+    staff_id = session.get('user_id')
+    week_start_str = request.args.get('week_start')
+    
+    # Get week_start or use current week
+    if week_start_str:
+        try:
+            week_start = datetime.fromisoformat(week_start_str).date()
+        except (ValueError, TypeError):
+            week_start = datetime.now().date()
+    else:
+        week_start = datetime.now().date()
+    
+    # Get the Monday of the week
+    days_since_monday = week_start.weekday()
+    week_start = week_start - timedelta(days=days_since_monday)
+    week_end = week_start + timedelta(days=6)
+    
+    # Get shifts for this week
+    week_start_dt = datetime.combine(week_start, datetime.min.time())
+    week_end_dt = datetime.combine(week_end, datetime.max.time())
+    
+    shifts = []
+    if staff_id:
+        shifts = Shift.query.filter(
+            Shift.staff_id == staff_id,
+            Shift.start_time >= week_start_dt,
+            Shift.start_time <= week_end_dt
+        ).order_by(Shift.start_time.asc()).all()
+    
+    # Organize shifts by day of week
+    schedule_by_day = {}
+    for i in range(7):
+        day = week_start + timedelta(days=i)
+        schedule_by_day[day.strftime('%Y-%m-%d')] = {
+            'day_name': day.strftime('%A'),
+            'date': day.strftime('%B %d, %Y'),
+            'short_date': day.strftime('%m/%d'),
+            'shifts': []
+        }
+    
+    # Add shifts to their respective days
+    for shift in shifts:
+        day_key = shift.start_time.date().isoformat()
+        if day_key in schedule_by_day:
+            schedule_by_day[day_key]['shifts'].append({
+                'id': shift.id,
+                'start_time': shift.start_time.strftime('%H:%M'),
+                'end_time': shift.end_time.strftime('%H:%M'),
+                'duration': f"{(shift.end_time - shift.start_time).total_seconds() / 3600:.1f}",
+                'clock_in': shift.clock_in.strftime('%H:%M') if shift.clock_in else None,
+                'clock_out': shift.clock_out.strftime('%H:%M') if shift.clock_out else None,
+                'status': 'completed' if shift.clock_out else ('in-progress' if shift.clock_in else 'scheduled')
+            })
+    
+    # Calculate navigation dates
+    prev_week = week_start - timedelta(days=7)
+    next_week = week_start + timedelta(days=7)
+    
+    return render_template('staff_schedule.html',
+                         week_start=week_start.isoformat(),
+                         week_start_display=week_start.strftime('%B %d, %Y'),
+                         week_end_display=week_end.strftime('%B %d, %Y'),
+                         schedule_by_day=schedule_by_day,
+                         prev_week=prev_week.isoformat(),
+                         next_week=next_week.isoformat(),
+                         total_shifts=len(shifts))
 
 @index_views.route('/staff/shifts', methods=['GET'])
 def staff_shifts():
     staff_id = session.get('user_id')
-    completed_shifts = []
+    all_shifts = []
     total_hours = 0
     completion_rate = 0
+    filter_type = request.args.get('filter', 'all')
     
     if staff_id:
         from App.models import Shift
+        from datetime import datetime
+        
         # Get all shifts for this staff member
-        shifts = Shift.query.filter_by(staff_id=staff_id).order_by(Shift.start_time.desc()).all()
+        query = Shift.query.filter_by(staff_id=staff_id)
         
-        # Filter for completed shifts (both clocked in and out)
-        for shift in shifts:
+        # Apply filter
+        now = datetime.now()
+        if filter_type == 'upcoming':
+            query = query.filter(Shift.start_time >= now)
+        elif filter_type == 'completed':
+            query = query.filter(Shift.clock_out.isnot(None))
+        
+        all_shifts = query.order_by(Shift.start_time.desc()).all()
+        
+        # Calculate total hours (from completed shifts only)
+        completed_count = 0
+        for shift in all_shifts:
             if shift.clock_in and shift.clock_out:
-                completed_shifts.append(shift)
+                hours = (shift.clock_out - shift.clock_in).total_seconds() / 3600
+                total_hours += hours
+                completed_count += 1
         
-        # Calculate total hours
-        if completed_shifts:
-            for shift in completed_shifts:
-                if shift.clock_in and shift.clock_out:
-                    hours = (shift.clock_out - shift.clock_in).total_seconds() / 3600
-                    total_hours += hours
-        
-        # Calculate completion rate
-        if shifts:
-            completion_rate = (len(completed_shifts) / len(shifts)) * 100
+        # Calculate completion rate from all shifts
+        total_shifts_count = Shift.query.filter_by(staff_id=staff_id).count()
+        if total_shifts_count > 0:
+            completion_rate = (completed_count / total_shifts_count) * 100
     
-    return render_template('staff_shifts.html', shifts=completed_shifts, total_hours=round(total_hours, 2), completion_rate=int(completion_rate))
+    return render_template('staff_shifts.html', shifts=all_shifts, total_hours=round(total_hours, 2), completion_rate=int(completion_rate))
 
 # ---------- Admin UI Pages ----------
 
@@ -570,8 +672,9 @@ def admin_requests():
 
 @index_views.route('/logout', methods=['GET'])
 def logout():
-    # later you can call your real auth logout function here
-    return redirect(url_for('index_views.staff_login'))
+    session.clear()
+    flash('You have been logged out successfully.', 'success')
+    return redirect(url_for('index_views.index_page'))
 
 @index_views.route('/admin/create-shift', methods=['GET', 'POST'])
 @admin_required
@@ -824,9 +927,40 @@ def select_strategy():
 
     return render_template('select_strategy.html')
 
-@index_views.route('/admin/view-request', methods=['GET'])
+@index_views.route('/admin/view-request', methods=['GET', 'POST'])
 @admin_required
 def view_requests():
     from App.models import ShiftSwapRequest
-    requests = ShiftSwapRequest.query.order_by(ShiftSwapRequest.created_at.desc()).all()
-    return render_template('admin_requests.html', requests=requests)
+    
+    if request.method == 'POST':
+        request_id = request.form.get('request_id')
+        action = request.form.get('action')  # approve or deny
+        
+        if request_id and action:
+            try:
+                swap_request = ShiftSwapRequest.query.get(int(request_id))
+                if not swap_request:
+                    flash('Request not found', 'error')
+                else:
+                    if action == 'approve':
+                        swap_request.status = 'approved'
+                        flash(f'Request from {swap_request.requesting_staff.username} has been approved', 'success')
+                    elif action == 'deny':
+                        swap_request.status = 'denied'
+                        flash(f'Request from {swap_request.requesting_staff.username} has been denied', 'error')
+                    
+                    db.session.commit()
+            except Exception as e:
+                flash(f'Error processing request: {str(e)}', 'error')
+        
+        return redirect(url_for('index_views.view_requests'))
+    
+    # GET - Show all requests by status
+    pending_requests = ShiftSwapRequest.query.filter_by(status='pending').order_by(ShiftSwapRequest.created_at.desc()).all()
+    approved_requests = ShiftSwapRequest.query.filter_by(status='approved').order_by(ShiftSwapRequest.created_at.desc()).all()
+    denied_requests = ShiftSwapRequest.query.filter_by(status='denied').order_by(ShiftSwapRequest.created_at.desc()).all()
+    
+    return render_template('admin_requests.html', 
+                         pending_requests=pending_requests,
+                         approved_requests=approved_requests,
+                         denied_requests=denied_requests)

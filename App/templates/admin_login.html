@@ -1,40 +1,54 @@
 {% extends "layout.html" %}
-{% block title %}Admin Login — Rostering App{% endblock %}
+{% block title %}Admin Login — Scheduloid{% endblock %}
 
 {% block content %}
 <div class="page-center">
-    <section class="card card-form">
-        <h1 class="card-title">Administrator Login</h1>
-        <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Access the admin dashboard</p>
+    <section class="card" style="max-width: 400px; width: 100%;">
+        <div class="card-header" style="text-align: center;">
+            <h1 class="card-title">Administrator Login</h1>
+            <p class="card-subtitle">Access the admin dashboard</p>
+        </div>
+        <div class="card-body">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul class="flash-messages">
+                  {% for category, message in messages %}
+                    <li class="flash {{ category }}">{{ message }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
 
-        <form method="post" action="{{ url_for('index_views.admin_login') }}">
-            <div class="form-group">
-                <label for="admin-username">Administrator Username</label>
-                <input 
-                    id="admin-username" 
-                    name="username" 
-                    type="text" 
-                    placeholder="Enter admin username"
-                    required
-                >
-            </div>
-            <div class="form-group">
-                <label for="admin-password">Password</label>
-                <input 
-                    id="admin-password" 
-                    name="password" 
-                    type="password" 
-                    placeholder="Enter password"
-                    required
-                >
-            </div>
-            <div class="form-group form-inline">
-                <label>
-                    <input type="checkbox" name="remember_me"> Remember me
-                </label>
-            </div>
-            <button type="submit" class="btn primary full-width">Login to Dashboard</button>
-        </form>
+            <form method="post" action="{{ url_for('index_views.admin_login') }}">
+                <div class="flex-col">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="admin-username">Administrator Username</label>
+                        <input 
+                            id="admin-username" 
+                            name="username" 
+                            type="text" 
+                            placeholder="Enter admin username"
+                            required
+                        >
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="admin-password">Password</label>
+                        <input 
+                            id="admin-password" 
+                            name="password" 
+                            type="password" 
+                            placeholder="Enter password"
+                            required
+                        >
+                    </div>
+                    <div class="flex-row" style="gap: 0.5rem;">
+                        <input type="checkbox" name="remember_me" id="admin-remember-me" style="width: auto; margin: 0;">
+                        <label for="admin-remember-me" style="margin: 0; font-weight: 600; color: #94a3b8; cursor: pointer;">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn primary full-width" style="margin-top: 0.5rem;">Login to Dashboard</button>
+                </div>
+            </form>
+        </div>
     </section>
 </div>
 {% endblock %}

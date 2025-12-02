@@ -1,0 +1,127 @@
+{% extends "layout.html" %}
+{% block title %}My Profile — Scheduloid{% endblock %}
+
+{% block nav_actions %}
+<span style="color: #94a3b8;">Logged in as {{ session.get('username', 'User') }}</span>
+<a href="{{ url_for('index_views.staff_dashboard') }}" class="link">Dashboard</a>
+<a href="{{ url_for('index_views.logout') }}" class="link">Logout</a>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header Panel -->
+<section class="card">
+    <div class="card-header">
+        <h1 class="card-title">My Profile</h1>
+        <p class="card-subtitle">Manage your account settings and view statistics</p>
+    </div>
+</section>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flash-messages">
+      {% for category, message in messages %}
+        <li class="flash {{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<!-- Main Two-Column Layout -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Left Column - Profile Info -->
+    <section class="card">
+        <div class="card-header">
+            <h2 class="card-title">Profile Information</h2>
+        </div>
+        <div class="card-body">
+            <div class="flex-col" style="gap: 0;">
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value">{{ staff.username if staff else session.get('username', 'N/A') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Role</span>
+                    <span class="info-value">{{ (staff.role if staff else session.get('role', 'staff')) | capitalize }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">User ID</span>
+                    <span class="info-value">{{ staff.id if staff else session.get('user_id', 'N/A') }}</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Right Column - Statistics -->
+    <section class="card">
+        <div class="card-header">
+            <h2 class="card-title">Statistics</h2>
+        </div>
+        <div class="card-body">
+            <div class="flex-row">
+                <div class="stat-box">
+                    <p class="stat-label">Total Shifts</p>
+                    <p class="stat-value">{{ total_shifts if total_shifts is defined else '0' }}</p>
+                </div>
+                <div class="stat-box teal">
+                    <p class="stat-label">Completed</p>
+                    <p class="stat-value">{{ completed_shifts if completed_shifts is defined else '0' }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Change Password Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Change Password</h2>
+        <p class="card-subtitle">Update your account password</p>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('staff_views.staff_profile') }}" style="max-width: 500px;">
+            <div class="flex-col">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" id="current_password" name="current_password" required 
+                           placeholder="Enter current password">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="new_password">New Password</label>
+                    <input type="password" id="new_password" name="new_password" required 
+                           placeholder="Enter new password (min 6 characters)">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required 
+                           placeholder="Confirm new password">
+                </div>
+                <div class="flex-row" style="margin-top: 0.5rem;">
+                    <button type="submit" class="btn primary">
+                        Update Password
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="notice-box" style="margin-top: 1.5rem; max-width: 500px;">
+            <p><strong>Security Tip:</strong> Use a strong password with at least 6 characters including letters, numbers, and symbols.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Actions Panel -->
+<section class="card">
+    <div class="card-header">
+        <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="card-body">
+        <div class="flex-row">
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_dashboard') }}'">Dashboard</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_shifts') }}'">My Shifts</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_schedule') }}'">My Schedule</button>
+            <button class="btn" onclick="location.href='{{ url_for('index_views.staff_clock') }}'">Clock In/Out</button>
+            <button class="btn" onclick="location.href='{{ url_for('staff_views.staff_swap_requests') }}'">Swap Requests</button>
+        </div>
+    </div>
+</section>
+{% endblock %}
