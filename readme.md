@@ -286,3 +286,7 @@ If you are adding models you may need to migrate the database with the commands 
 | **Admin** | `admin1`     | `adminpass`   | Full access to schedules, shift creation, reports, and user management. |
 | **Staff** | `john_smith` | `password123` | Can view rosters, clock in/out, and interact with assigned shifts. |
 | **Staff** | `jane_doe`   | `password123` | Same permissions as the other staff user. |
+
+
+# Demo Video
+https://youtu.be/uDBtntcb6hQ
