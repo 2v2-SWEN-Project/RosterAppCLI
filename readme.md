@@ -277,3 +277,12 @@ If you are running into errors in gitpod when updateding your github actions fil
 ## Database Issues
 
 If you are adding models you may need to migrate the database with the commands given in the previous database migration section. Alternateively you can delete you database file.
+
+
+# Demo Testing
+
+| Role      | Username     | Password      | Description |
+|-----------|--------------|---------------|-------------|
+| **Admin** | `admin1`     | `adminpass`   | Full access to schedules, shift creation, reports, and user management. |
+| **Staff** | `john_smith` | `password123` | Can view rosters, clock in/out, and interact with assigned shifts. |
+| **Staff** | `jane_doe`   | `password123` | Same permissions as the other staff user. |
