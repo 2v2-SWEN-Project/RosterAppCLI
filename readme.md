@@ -290,3 +290,6 @@ If you are adding models you may need to migrate the database with the commands 
 
 # Demo Video
 https://youtu.be/uDBtntcb6hQ
+
+# Initialise Database for Application on Render
+https://rosterappcli.onrender.com/init
